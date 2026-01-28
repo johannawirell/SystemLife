@@ -1,12 +1,48 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Alert, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Alert, TextInput, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import * as Google from 'expo-auth-session/providers/google';
 import AuthForm from '@/components/AuthForm';
 
 export default function RegisterScreen() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState('');
+
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    clientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+    iosClientId: 'YOUR_IOS_CLIENT_ID.apps.googleusercontent.com',
+    androidClientId: 'YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com',
+  });
+
+  React.useEffect(() => {
+    if (response?.type === 'success') {
+      const { authentication } = response;
+      handleOAuthRegister(authentication?.accessToken);
+    }
+  }, [response]);
+
+  const handleOAuthRegister = async (accessToken: string | undefined) => {
+    if (!accessToken) return;
+
+    setIsLoading(true);
+    try {
+      const userInfoResponse = await fetch(
+        'https://www.googleapis.com/oauth2/v2/userinfo',
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      const userInfo = await userInfoResponse.json();
+      setName(userInfo.name);
+      
+      // TODO: Skicka till backend
+      router.replace('/(tabs)/home');
+    } catch (error) {
+      Alert.alert('OAuth registrering misslyckades', 'Försök igen');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleRegister = async (email: string, password: string) => {
     if (!name.trim()) {
@@ -16,23 +52,14 @@ export default function RegisterScreen() {
 
     setIsLoading(true);
     try {
-      // TODO: Integrera OAuth 2.0 här
-      console.log('Register attempt:', name, email, password);
-      
-      // Simulera API-anrop
+      // TODO: Implementera registrering
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Navigera till home skärm
-      router.replace('/tabs/home');
+      router.replace('/(tabs)/home');
     } catch (error) {
       Alert.alert('Registrering misslyckades', 'Försök igen');
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleLoginPress = () => {
-    router.back();
   };
 
   return (
@@ -56,8 +83,16 @@ export default function RegisterScreen() {
         />
 
         <TouchableOpacity 
+          style={styles.oauthButton}
+          onPress={() => promptAsync()}
+          disabled={!request || isLoading}
+        >
+          <Text style={styles.oauthText}>🔐 Registrera med Google</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
           style={styles.loginButton}
-          onPress={handleLoginPress}
+          onPress={() => router.back()}
         >
           <Text style={styles.loginText}>Har du redan konto? Logga in</Text>
         </TouchableOpacity>
@@ -95,6 +130,18 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 16,
     fontSize: 16,
+  },
+  oauthButton: {
+    backgroundColor: '#4285F4',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  oauthText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#fff',
   },
   loginButton: {
     marginTop: 20,

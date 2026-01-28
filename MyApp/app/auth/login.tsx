@@ -1,24 +1,66 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
 import AuthForm from '@/components/AuthForm';
+import { GOOGLE_OAUTH_CONFIG } from '@/config/oauth';
+
+WebBrowser.maybeCompleteAuthSession();
+
+interface UserInfo {
+  name: string;
+  email: string;
+}
 
 export default function LoginScreen() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    clientId: GOOGLE_OAUTH_CONFIG.clientId,
+    iosClientId: GOOGLE_OAUTH_CONFIG.iosClientId,
+    androidClientId: GOOGLE_OAUTH_CONFIG.androidClientId,
+  });
+
+  React.useEffect(() => {
+    const handleOAuthSuccess = async (accessToken: string | undefined) => {
+      if (!accessToken) return;
+
+      setIsLoading(true);
+      try {
+        const userInfoResponse = await fetch(
+          'https://www.googleapis.com/oauth2/v2/userinfo',
+          { headers: { Authorization: `Bearer ${accessToken}` } }
+        );
+        const userInfo = await userInfoResponse.json();
+        
+        console.log('Google login success:', userInfo);
+        setUserInfo(userInfo);
+
+        router.replace('/(tabs)/home');
+      } catch (error) {
+        Alert.alert('OAuth inloggning misslyckades', 'Försök igen');
+        console.error('OAuth error:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (response?.type === 'success') {
+      const { authentication } = response;
+      handleOAuthSuccess(authentication?.accessToken);
+    }
+  }, [response, router]);
 
   const handleLogin = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // TODO: Integrera OAuth 2.0 här
-      // För nu, simulera login
-      console.log('Login attempt:', email, password);
-      
-      // Simulera API-anrop
+      console.log('Email login:', email, password);
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Navigera till home skärm
-      router.replace('/home');
+      router.replace('/(tabs)/home');
     } catch (error) {
       Alert.alert('Inloggning misslyckades', 'Försök igen');
     } finally {
@@ -49,9 +91,17 @@ export default function LoginScreen() {
           <Text style={styles.registerText}>Ingen konto? Registrera dig här</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.oauthButton}>
-          <Text style={styles.oauthText}>Logga in med Google (OAuth 2.0)</Text>
+        <TouchableOpacity 
+          style={styles.oauthButton}
+          onPress={() => promptAsync()}
+          disabled={!request || isLoading}
+        >
+          <Text style={styles.oauthText}>🔐 Logga in med Google</Text>
         </TouchableOpacity>
+
+        {userInfo && (
+          <Text style={styles.welcomeText}>Välkommen {userInfo.name}!</Text>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -88,16 +138,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   oauthButton: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#4285F4',
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 20,
-    borderWidth: 1,
-    borderColor: '#ddd',
   },
   oauthText: {
     fontSize: 14,
     fontWeight: '600',
+    color: '#fff',
+  },
+  welcomeText: {
+    marginTop: 20,
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#4CAF50',
   },
 });

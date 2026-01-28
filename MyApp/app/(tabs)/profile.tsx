@@ -1,26 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, SafeAreaView, Text } from 'react-native';
+import React, { useState } from 'react';
+import { View, ScrollView, StyleSheet, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import ProfileCard from '@/components/ProfileCard';
 import BalanceBar from '@/components/BalanceBar';
-
-interface User {
-  id: string;
-  name: string;
-  level: number;
-  title: string;
-  balance: number;
-  class: number;
-  xpToNextLevel: string;
-  health: number;
-  economy: number;
-  social: number;
-  iq: number;
-  personality: string;
-  coins: number;
-  email: string;
-}
+import { User } from '@/types/user';
 
 export default function ProfileScreen() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [user, setUser] = useState<User>({
     id: '1',
     name: 'Johanna Wirell',
