@@ -1,96 +1,53 @@
-# 📱 App UI/UX Checklist
+#  SystemLife Checklist
+Syftet med SystemLife är att skapa balans i livet.
+## Övergripande
+- Klient utvecklas i React Native - JavaScript
+- Server i JavaScript
+## Funktionalitet
+- [ ] Inloggninsformulär OAuth 2.0 
 
----
+## Status
 
-## ✅ Övergripande
-- [ ] Appen känns snabb och responsiv
-- [ ] Konsekvent design (färger, spacing, typografi)
-- [ ] Ingen tydlig “webb-känsla”
-- [ ] Fungerar lika bra på iOS och Android
+- [ ] Namn ska finnas
+- [ ] Livslevel 1-50
+	- Börjar på 1 innan input
+- [ ] Titel
+ 	- *Starter* innan input
+- [ ] Balans 0-100
+ 	- 0 innan input
+- [ ] Klass: Integer
+ 	- *N/A* innan input
+- [ ] Informationstext om XP till nästa level
+ 	- *N/A* innan input
+- [ ] Hälsa: Integer
+ 	- 0 innan input
+	- beräknas med matematisk formel
+	- hämta data från ex apple hälsa
+	- manuell input
+- [ ] Ekonomi: Integer
+ 	- 0 innan input
+	- beräknas med matematisk formel
+	- hämta data från ex bank
+	- manuell input
+- [ ] Socialt: Integer
+ 	- 0 innan input
+	- beräknas med matematisk formel
+	- hämta data från ex sms
+	- manuell input
+- [ ] IQ: Integer
+ 	- *N/A* innan input
+	- Fast siffra
+	- Manuell input 
+- [ ] Personlighetstyp: char
+ 	- *N/A* innan input
+	- Manuell input
+- [ ] Mynt: int
+	- 0 att börja med
+	- baserad på achievements
 
----
+## Utseende
+- []
+## Tillgänglighet
+- [] Ska fungera på IOS och Andriod
 
-## 🧭 Navigation
-- [ ] Tydlig navigation (Stack eller Bottom Tabs)
-- [ ] Max 3–5 huvudvyer
-- [ ] Varje vy har tydlig titel
-- [ ] Förutsägbar tillbaka-navigation
 
----
-
-## 📐 Layout & Safe Areas
-- [ ] Innehåll hamnar inte bakom notch / status bar
-- [ ] `SafeAreaView` används på skärmnivå
-- [ ] Konsekventa marginaler och padding
-- [ ] Mobil-first layout
-
----
-
-## 🎨 Färger & Typografi
-- [ ] 1 primär färg
-- [ ] 1 sekundär färg
-- [ ] Neutrala gråskalor
-- [ ] Tillräcklig kontrast
-- [ ] Max 1–2 typsnitt
-
----
-
-## 🔘 Knappar & Interaktion
-- [ ] Touch-ytor minst 44px höga
-- [ ] Tydlig primär knapp
-- [ ] Sekundära actions visuellt nedtonade
-- [ ] Knappar inaktiveras vid loading
-
----
-
-## 📋 Listor
-- [ ] Listor använder `FlatList`
-- [ ] Tydlig klickyta per rad
-- [ ] Varje item har titel + sekundär info
-- [ ] Loading state visas
-- [ ] Tom lista har ett “empty state”
-
----
-
-## 📄 Detaljsidor
-- [ ] Tydlig visuell hierarki
-- [ ] Actions separerade från innehåll
-- [ ] Viktiga actions lätta att nå
-
----
-
-## 🔄 States & Feedback
-- [ ] Loading state (spinner / skeleton)
-- [ ] Error state med mänskligt felmeddelande
-- [ ] Success feedback (toast / alert)
-- [ ] Inga “tysta” actions
-
----
-
-## ✍️ Formulär (om tillämpligt)
-- [ ] Label ovanför input
-- [ ] Validering vid submit
-- [ ] Tydliga felmeddelanden
-- [ ] Keyboard täcker inte inputfält
-
----
-
-## ♿ Tillgänglighet (basic)
-- [ ] Alla klickbara element har accessibility-label
-- [ ] Text är läsbar (inte för liten)
-- [ ] Ikoner kompletteras med text vid behov
-
----
-
-## ⚙️ Teknisk kvalitet (UI)
-- [ ] Återanvändbara UI-komponenter
-- [ ] Ingen hårdkodad mock-data i UI
-- [ ] Styles är strukturerade och konsekventa
-- [ ] Onödiga re-renders undviks
-
----
-
-## ✨ Bonus (valfritt)
-- [ ] Dark mode
-- [ ] Subtila animationer
-- [ ] Haptisk feedback vid viktiga actions
