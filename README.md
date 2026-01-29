@@ -4,44 +4,47 @@ Syftet med SystemLife är att skapa balans i livet.
 - Klient utvecklas i React Native - JavaScript
 - Server i JavaScript
 ## Funktionalitet
-- [ ] Inloggninsformulär OAuth 2.0 
+- [] Inloggninsformulär OAuth 2.0 
+	- [] Google
+	- [x] AppleID
+	- [] Andriod
 
 ## Status
 
-- [ ] Namn ska finnas
-- [ ] Livslevel 1-50
+- [x] Namn ska finnas
+- [x] Livslevel 1-50
 	- Börjar på 1 innan input
-- [ ] Titel
+- [x] Titel
  	- *Starter* innan input
-- [ ] Balans 0-100
+- [x] Balans 0-100
  	- 0 innan input
-- [ ] Klass: Integer
+- [x] Klass: Integer
  	- *N/A* innan input
-- [ ] Informationstext om XP till nästa level
+- [x] Informationstext om XP till nästa level
  	- *N/A* innan input
-- [ ] Hälsa: Integer
+- [x] Hälsa: Integer
  	- 0 innan input
 	- beräknas med matematisk formel
 	- hämta data från ex apple hälsa
 	- manuell input
-- [ ] Ekonomi: Integer
+- [x] Ekonomi: Integer
  	- 0 innan input
 	- beräknas med matematisk formel
 	- hämta data från ex bank
 	- manuell input
-- [ ] Socialt: Integer
+- [x] Socialt: Integer
  	- 0 innan input
 	- beräknas med matematisk formel
 	- hämta data från ex sms
 	- manuell input
-- [ ] IQ: Integer
+- [x] IQ: Integer
  	- *N/A* innan input
 	- Fast siffra
 	- Manuell input 
-- [ ] Personlighetstyp: char
+- [x] Personlighetstyp: string
  	- *N/A* innan input
 	- Manuell input
-- [ ] Mynt: int
+- [x] Coins: int
 	- 0 att börja med
 	- baserad på achievements
 
