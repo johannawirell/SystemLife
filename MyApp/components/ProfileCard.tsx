@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
-import { User } from '../types/user.js';
+import { User } from '../types/user';
 
 interface ProfileCardProps {
   user: User;

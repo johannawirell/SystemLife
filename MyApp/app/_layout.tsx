@@ -1,7 +1,6 @@
 import { Stack, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { getAuthToken } from '@/config/authContext';
-import { ActivityIndicator, View, Text } from 'react-native';
 
 export default function RootLayout() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);

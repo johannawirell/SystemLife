@@ -33,7 +33,8 @@ export default function Login() {
         await saveAuthToken(accessToken);
         router.replace('/(tabs)/home');
       } catch (error) {
-        Alert.alert('Login failed', 'Please try again');
+        const message = error instanceof Error ? error.message : String(error);
+        Alert.alert('OAuth login error', message);
       } finally {
         setIsLoading(false);
       }
