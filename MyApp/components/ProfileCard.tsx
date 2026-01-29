@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, useColorScheme } from 'react-native';
 import { User } from '../types/user';
 
 interface ProfileCardProps {
@@ -7,81 +7,145 @@ interface ProfileCardProps {
 }
 
 export default function ProfileCard({ user }: ProfileCardProps) {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const styles = getStyles(isDark);
+
   return (
     <View style={styles.card}>
-      {user.avatar && (
-        <Image source={{ uri: user.avatar }} style={styles.avatar} />
-      )}
-      <Text style={styles.name}>{user.name}</Text>
-      <Text style={styles.title}>{user.title}</Text>
-      
-      <View style={styles.statsContainer}>
-        <View style={styles.stat}>
-          <Text style={styles.statLabel}>Level</Text>
-          <Text style={styles.statValue}>{user.level}/50</Text>
+      <Text style={styles.statusHeader}>STATUS</Text>
+      <View style={styles.row}>
+        <Text style={styles.label}>NAME:</Text>
+        <Text style={styles.value}>{user.name}</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>TITLE:</Text>
+        <Text style={[styles.value, styles.titleValue]}>{user.title}</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>LEVEL:</Text>
+        <Text style={styles.levelValue}>{user.level}</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>XP to next level:</Text>
+        <Text style={styles.value}>{user.xpToNextLevel}</Text>
+      </View>
+      <View style={styles.divider} />
+
+      <View style={styles.statsGrid}>
+        <View style={styles.statCol}>
+          <Text style={styles.statLabel}>HEALTH</Text>
+          <Text style={styles.statValue}>{user.health}</Text>
         </View>
-        <View style={styles.stat}>
-          <Text style={styles.statLabel}>Balance</Text>
-          <Text style={styles.statValue}>{user.balance}/100</Text>
+        <View style={styles.statCol}>
+          <Text style={styles.statLabel}>ECONOMY</Text>
+          <Text style={styles.statValue}>{user.economy}</Text>
         </View>
-        <View style={styles.stat}>
-          <Text style={styles.statLabel}>Mynt</Text>
-          <Text style={styles.statValue}>{user.coins}</Text>
+        <View style={styles.statCol}>
+          <Text style={styles.statLabel}>SOCIAL</Text>
+          <Text style={styles.statValue}>{user.social}</Text>
+        </View>
+        <View style={styles.statCol}>
+          <Text style={styles.statLabel}>IQ</Text>
+          <Text style={styles.statValue}>{user.iq}</Text>
+        </View>
+        <View style={styles.statCol}>
+          <Text style={styles.statLabel}>PERSONALITY</Text>
+          <Text style={styles.statValue}>{user.personality}</Text>
+        </View>
+        <View style={styles.statCol}>
+          <Text style={styles.statLabel}>CLASS</Text>
+          <Text style={styles.statValue}>{user.class}</Text>
         </View>
       </View>
 
-      {user.xpToNextLevel !== 'N/A' && (
-        <Text style={styles.xpText}>{user.xpToNextLevel}</Text>
-      )}
+      <View style={styles.divider} />
+
+      <View style={styles.row}>
+        <Text style={styles.label}>COINS:</Text>
+        <Text style={styles.value}>{user.coins}</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>EMAIL:</Text>
+        <Text style={styles.value}>{user.email}</Text>
+      </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 12,
-    padding: 20,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginBottom: 12,
-  },
-  name: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  title: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 16,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginBottom: 16,
-  },
-  stat: {
-    alignItems: 'center',
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#999',
-    marginBottom: 4,
-  },
-  statValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  xpText: {
-    fontSize: 14,
-    color: '#007AFF',
-    marginTop: 10,
-  },
-});
+function getStyles(isDark: boolean) {
+  return StyleSheet.create({
+    card: {
+      backgroundColor: isDark ? '#23243a' : '#f5f5f5',
+      borderRadius: 16,
+      padding: 24,
+      width: '100%',
+      maxWidth: 400,
+      shadowColor: '#000',
+      shadowOpacity: 0.15,
+      shadowRadius: 8,
+      elevation: 4,
+      marginBottom: 20,
+    },
+    statusHeader: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: '#4F8EF7',
+      letterSpacing: 2,
+      marginBottom: 16,
+      textAlign: 'center',
+    },
+    row: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 8,
+    },
+    label: {
+      color: isDark ? '#aaa' : '#333',
+      fontWeight: 'bold',
+      fontSize: 15,
+      letterSpacing: 1,
+    },
+    value: {
+      color: isDark ? '#fff' : '#181A20',
+      fontSize: 15,
+      fontWeight: '600',
+    },
+    titleValue: {
+      color: '#FF5252',
+      fontWeight: 'bold',
+    },
+    levelValue: {
+      color: '#4F8EF7',
+      fontWeight: 'bold',
+      fontSize: 22,
+    },
+    divider: {
+      borderBottomWidth: 1,
+      borderBottomColor: isDark ? '#333' : '#ddd',
+      marginVertical: 12,
+    },
+    statsGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+      marginBottom: 8,
+    },
+    statCol: {
+      width: '30%',
+      marginBottom: 12,
+      alignItems: 'center',
+    },
+    statLabel: {
+      fontSize: 12,
+      color: '#aaa',
+      marginBottom: 2,
+      letterSpacing: 1,
+    },
+    statValue: {
+      fontSize: 16,
+      color: isDark ? '#fff' : '#181A20',
+      fontWeight: 'bold',
+    },
+  });
+}

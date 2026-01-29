@@ -1,10 +1,9 @@
 import React from 'react';
-import { View, StyleSheet, useColorScheme, Image } from 'react-native';
+import { View, Image, StyleSheet, useColorScheme } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { user } from '../../types/user';
 import ProfileCard from '../../components/ProfileCard';
 import BalanceBar from '../../components/BalanceBar';
-import { user } from '../../types/user';
-
 
 export default function ProfileScreen() {
   const colorScheme = useColorScheme();
@@ -39,15 +38,14 @@ function getStyles(isDark: boolean) {
     },
     content: {
       flex: 1,
-      justifyContent: 'flex-start',
       alignItems: 'center',
-      paddingHorizontal: 28,
+      paddingHorizontal: 16,
       paddingTop: 40,
     },
     logoImage: {
       width: 120,
       height: 120,
-      marginBottom: 8,
+      marginBottom: 16,
     },
   });
 }
