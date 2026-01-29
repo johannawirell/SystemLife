@@ -1,4 +1,4 @@
-import { StyleSheet, Platform } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
 export const COLORS = {
   darkBg: '#181A20',
@@ -21,82 +21,21 @@ export const FONT = Platform.select({ ios: 'System', android: 'sans-serif' });
 
 export function getProfileCardStyles(isDark: boolean) {
   return StyleSheet.create({
-    card: {
-      backgroundColor: isDark ? COLORS.cardDark : COLORS.cardLight,
-      borderRadius: 16,
-      padding: 24,
-      width: '100%',
-      maxWidth: 400,
-      shadowColor: '#000',
-      shadowOpacity: 0.15,
-      shadowRadius: 8,
-      elevation: 4,
-      marginBottom: 20,
-    },
-    statusHeader: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      color: COLORS.accent,
-      letterSpacing: 2,
-      marginBottom: 16,
-      textAlign: 'center',
-      fontFamily: FONT,
-    },
-    row: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      marginBottom: 8,
-    },
-    label: {
-      color: isDark ? COLORS.textSecondaryDark : COLORS.textLight,
-      fontWeight: 'bold',
-      fontSize: 15,
-      letterSpacing: 1,
-      fontFamily: FONT,
-    },
-    value: {
-      color: isDark ? COLORS.textDark : COLORS.textLight,
-      fontSize: 15,
-      fontWeight: '600',
-      fontFamily: FONT,
-    },
-    titleValue: {
-      color: COLORS.accentRed,
-      fontWeight: 'bold',
-    },
-    levelValue: {
-      color: COLORS.accent,
-      fontWeight: 'bold',
-      fontSize: 22,
-    },
-    divider: {
-      borderBottomWidth: 1,
-      borderBottomColor: isDark ? COLORS.dividerDark : COLORS.dividerLight,
-      marginVertical: 12,
-    },
-    statsGrid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      justifyContent: 'space-between',
-      marginBottom: 8,
-    },
-    statCol: {
-      width: '30%',
-      marginBottom: 12,
+    container: {
+      flex: 1,
+      backgroundColor: isDark ? '#000' : '#fff',
       alignItems: 'center',
+      justifyContent: 'center',
     },
-    statLabel: {
-      fontSize: 12,
-      color: COLORS.textSecondaryDark,
-      marginBottom: 2,
-      letterSpacing: 1,
-      fontFamily: FONT,
+    content: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
-    statValue: {
-      fontSize: 16,
-      color: isDark ? COLORS.textDark : COLORS.textLight,
-      fontWeight: 'bold',
-      fontFamily: FONT,
+    logoImage: {
+      width: 120,
+      height: 120,
+      marginBottom: 24,
     },
   });
 }

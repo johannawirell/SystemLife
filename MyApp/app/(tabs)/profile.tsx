@@ -1,14 +1,15 @@
 import React from 'react';
 import { View, Image, StyleSheet, useColorScheme } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { user } from '../../types/user';
+// import { user } from '../../types/user';
+import { getProfileCardStyles } from '@/config/appStyles';
 import ProfileCard from '../../components/ProfileCard';
 import BalanceBar from '../../components/BalanceBar';
 
 export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const styles = getStyles(isDark);
+  const styles = getProfileCardStyles(isDark);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -18,10 +19,11 @@ export default function ProfileScreen() {
           style={styles.logoImage}
           resizeMode="contain"
         />
-        <ProfileCard user={user} />
+        {/* <ProfileCard user={user} /> */}
         <BalanceBar
           label="Balance"
-          value={user.balance}
+          value={0}
+          // value={user.balance}
           maxValue={100}
           color="#4F8EF7"
         />
@@ -30,22 +32,3 @@ export default function ProfileScreen() {
   );
 }
 
-function getStyles(isDark: boolean) {
-  return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: isDark ? '#181A20' : '#fff',
-    },
-    content: {
-      flex: 1,
-      alignItems: 'center',
-      paddingHorizontal: 16,
-      paddingTop: 40,
-    },
-    logoImage: {
-      width: 120,
-      height: 120,
-      marginBottom: 16,
-    },
-  });
-}

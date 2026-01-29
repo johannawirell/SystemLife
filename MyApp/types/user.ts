@@ -23,20 +23,20 @@ export interface AuthState {
 }
 
 
-export const user = {
-  id: '1',
-  name: 'johannawirell',
-  level: 1,
-  title: 'Starter',
-  balance: 0,
-  class: 0,
-  xpToNextLevel: 'N/A',
-  health: 0,
-  economy: 0,
-  social: 0,
-  iq: 0,
-  personality: 'N/A',
-  coins: 0,
-  email: 'johanna@example.com',
-  avatar: '',
-};
+// export const user = {
+//   id: '1',
+//   name: 'johannawirell',
+//   level: 1,
+//   title: 'Starter',
+//   balance: 0,
+//   class: 0,
+//   xpToNextLevel: 'N/A',
+//   health: 0,
+//   economy: 0,
+//   social: 0,
+//   iq: 0,
+//   personality: 'N/A',
+//   coins: 0,
+//   email: 'johanna@example.com',
+//   avatar: '',
+// };

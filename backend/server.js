@@ -36,52 +36,78 @@ const User = mongoose.model('User', userSchema);
 
 app.get('/', async (req, res) => {  
   const users = await User.find({});
-
+  console.log('Hämtar'); 
   res.send(users); 
 });
 
 // Hämta profil
 app.get('/profile/:email', async (req, res) => {
+  console.log('Hämtar profil');
   const user = await User.findOne({ email: req.params.email });
   if (!user) return res.status(404).json({ error: 'User not found' });
   res.json(user);
 });
 
-// Uppdatera profil
-app.put('/profile/:email', async (req, res) => {
-  const user = await User.findOneAndUpdate(
-    { email: req.params.email },
-    req.body,
-    { new: true, upsert: true }
-  );
-  res.json(user);
-});
-
 // Create or update profile with defaults
 app.put('/profile/:email', async (req, res) => {
-  const defaults = {
-    name: req.body.name || 'Namn',
-    level: req.body.level ?? 1,
-    title: req.body.title || 'Starter',
-    balance: req.body.balance ?? 0,
-    class: req.body.class ?? 0,
-    xpToNextLevel: req.body.xpToNextLevel || 'N/A',
-    health: req.body.health ?? 0,
-    economy: req.body.economy ?? 0,
-    social: req.body.social ?? 0,
-    iq: req.body.iq ?? 0,
-    personality: req.body.personality || 'N/A',
-    coins: req.body.coins ?? 0,
-    email: req.params.email,
-    avatar: req.body.avatar || '',
-  };
+  try {
+    const { email, ...bodyWithoutEmail } = req.body;
 
-  const user = await User.findOneAndUpdate(
-    { email: req.params.email },
-    { $setOnInsert: defaults, ...req.body },
-    { new: true, upsert: true }
-  );
-  res.json(user);
+    // Defaultvärden
+    const allDefaults = {
+      name: 'New User',
+      level: 1,
+      title: 'Starter',
+      balance: 0,
+      class: 0,
+      xpToNextLevel: 100,
+      health: 0,
+      economy: 0,
+      social: 0,
+      iq: 0,
+      personality: 'N/A',
+      coins: 0,
+      email: req.params.email,
+      avatar: '',
+    };
+
+    // Ta bara med default för fält som INTE finns i bodyWithoutEmail
+    const defaults = {};
+    for (const key in allDefaults) {
+      if (bodyWithoutEmail[key] === undefined) {
+        defaults[key] = allDefaults[key];
+      }
+    }
+
+    const update = {
+      $set: bodyWithoutEmail,
+      $setOnInsert: defaults,
+    };
+
+    const user = await User.findOneAndUpdate(
+      { email: req.params.email },
+      update,
+      { new: true, upsert: true }
+    );
+    res.json(user);
+  } catch (err) {
+    console.error('Fel i /profile/:email:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/profile/:email', async (req, res) => {
+  try {
+    const result = await User.findOneAndDelete({ email: req.params.email });
+    if (!result) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    console.log('Användare borttagen:', req.params.email);
+    res.json({ success: true, message: 'User deleted' });
+  } catch (err) {
+    console.error('Fel vid borttagning av användare:', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Starta servern
