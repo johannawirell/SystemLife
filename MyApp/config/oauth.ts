@@ -1,7 +1,12 @@
-import Constants from 'expo-constants';
+// eslint-disable-next-line expo/no-env-var-destructuring
+const {
+  EXPO_PUBLIC_GOOGLE_CLIENT_ID = '',
+  EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID = '',
+  EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID = '',
+} = process.env;
 
 export const GOOGLE_OAUTH_CONFIG = {
-  clientId: Constants.expoConfig?.extra?.googleClientId || '',
-  iosClientId: Constants.expoConfig?.extra?.googleIosClientId || '',
-  androidClientId: Constants.expoConfig?.extra?.googleAndroidClientId || '',
+  clientId: EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+  iosClientId: EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+  androidClientId: EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
 };

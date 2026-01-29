@@ -14,7 +14,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.johannawirell.systemlife"
+      "bundleIdentifier": "com.johannawirell.systemlife",
+      "usesAppleSignIn": true
     },
     "android": {
       "adaptiveIcon": {

@@ -1,51 +1,51 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, useColorScheme } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
-import AuthForm from '@/components/AuthForm';
 import { GOOGLE_OAUTH_CONFIG } from '@/config/oauth';
 import { saveAuthToken } from '@/config/authContext';
+import * as AppleAuthentication from 'expo-apple-authentication';
 
 WebBrowser.maybeCompleteAuthSession();
-
-interface UserInfo {
-  name: string;
-  email: string;
-}
 
 export default function Login() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [isAppleAvailable, setIsAppleAvailable] = useState(false);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
+  React.useEffect(() => {
+    let mounted = true;
+    AppleAuthentication.isAvailableAsync()
+      .then((available) => {
+        if (mounted) setIsAppleAvailable(available);
+      })
+      .catch(() => {
+        if (mounted) setIsAppleAvailable(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const [request, response, promptAsync] = Google.useAuthRequest({
-    clientId: GOOGLE_OAUTH_CONFIG.clientId,
-    iosClientId: GOOGLE_OAUTH_CONFIG.iosClientId,
-    androidClientId: GOOGLE_OAUTH_CONFIG.androidClientId,
+    clientId: GOOGLE_OAUTH_CONFIG.clientId, // Web client ID
+    // Ta bort iosClientId och androidClientId om du bara kör i Expo Go!
   });
 
   React.useEffect(() => {
     const handleOAuthSuccess = async (accessToken: string | undefined) => {
       if (!accessToken) return;
-
       setIsLoading(true);
       try {
-        const userInfoResponse = await fetch(
-          'https://www.googleapis.com/oauth2/v2/userinfo',
-          { headers: { Authorization: `Bearer ${accessToken}` } }
-        );
-        const userInfo = await userInfoResponse.json();
-        
-        setUserInfo(userInfo);
-
-        // Spara token
+        // Hämta användarinfo om du vill, eller skicka token till backend
         await saveAuthToken(accessToken);
-
         router.replace('/(tabs)/home');
       } catch (error) {
-        Alert.alert('OAuth inloggning misslyckades', 'Försök igen');
+        Alert.alert('Inloggning misslyckades', 'Försök igen');
       } finally {
         setIsLoading(false);
       }
@@ -57,105 +57,101 @@ export default function Login() {
     }
   }, [response, router]);
 
-  const handleLogin = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      // Här kan du lägga till riktig login mot backend
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      await saveAuthToken('email-' + email);
-      router.replace('/(tabs)/home');
-    } catch (error) {
-      Alert.alert('Inloggning misslyckades', 'Försök igen');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleRegisterPress = () => {
-    router.push('/auth/register');
-  };
+  const styles = getStyles(isDark);
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.title}>SystemLife</Text>
-        <Text style={styles.subtitle}>Skapa balans i ditt liv</Text>
-
-        <AuthForm 
-          onSubmit={handleLogin}
-          isLoading={isLoading}
-          buttonText="Logga in"
-        />
-
-        <TouchableOpacity 
-          style={styles.registerButton}
-          onPress={handleRegisterPress}
-        >
-          <Text style={styles.registerText}>Ingen konto? Registrera dig här</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
+        <Text style={styles.subtitle}>Logga in med Google för att fortsätta</Text>
+        <TouchableOpacity
           style={styles.oauthButton}
           onPress={() => promptAsync()}
           disabled={!request || isLoading}
         >
-          <Text style={styles.oauthText}>🔐 Logga in med Google</Text>
+          {isLoading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.oauthText}>Logga in med Google</Text>
+          )}
         </TouchableOpacity>
-
-        {userInfo && (
-          <Text style={styles.welcomeText}>Välkommen {userInfo.name}!</Text>
+        {isAppleAvailable && (
+          <AppleAuthentication.AppleAuthenticationButton
+            buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+            buttonStyle={isDark
+              ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE
+              : AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+            cornerRadius={8}
+            style={{ width: '100%', height: 44, marginTop: 16 }}
+            onPress={async () => {
+              try {
+                setIsLoading(true);
+                const credential = await AppleAuthentication.signInAsync({
+                  requestedScopes: [
+                    AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+                    AppleAuthentication.AppleAuthenticationScope.EMAIL,
+                  ],
+                });
+                // Hantera credential, t.ex. spara token och navigera vidare
+                await saveAuthToken(credential.identityToken || '');
+                router.replace('/(tabs)/home');
+              } catch (e: any) {
+                if (e.code !== 'ERR_CANCELED') {
+                  Alert.alert('Apple-inloggning misslyckades', 'Försök igen');
+                }
+              } finally {
+                setIsLoading(false);
+              }
+            }}
+          />
         )}
       </View>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 40,
-  },
-  registerButton: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  registerText: {
-    color: '#007AFF',
-    fontSize: 14,
-  },
-  oauthButton: {
-    backgroundColor: '#4285F4',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  oauthText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  welcomeText: {
-    marginTop: 20,
-    textAlign: 'center',
-    fontSize: 16,
-    color: '#4CAF50',
-  },
-});
+function getStyles(isDark: boolean) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: isDark ? '#181A20' : '#fff',
+    },
+    content: {
+      flex: 1,
+      justifyContent: 'center',
+      paddingHorizontal: 20,
+    },
+    title: {
+      fontSize: 36,
+      fontWeight: 'bold',
+      textAlign: 'center',
+      marginBottom: 8,
+      color: isDark ? '#fff' : '#181A20',
+      letterSpacing: 1,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: isDark ? '#aaa' : '#666',
+      textAlign: 'center',
+      marginBottom: 40,
+    },
+    oauthButton: {
+      backgroundColor: '#4285F4',
+      paddingVertical: 16,
+      borderRadius: 10,
+      alignItems: 'center',
+      marginTop: 28,
+      shadowColor: isDark ? '#000' : '#4285F4',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    oauthText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: '#fff',
+      letterSpacing: 0.5,
+    },
+  });
+}
