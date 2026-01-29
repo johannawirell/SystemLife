@@ -33,7 +33,7 @@ export default function Login() {
         await saveAuthToken(accessToken);
         router.replace('/(tabs)/home');
       } catch (error) {
-        Alert.alert('Inloggning misslyckades', 'Försök igen');
+        Alert.alert('Login failed', 'Please try again');
       } finally {
         setIsLoading(false);
       }
@@ -58,7 +58,7 @@ export default function Login() {
       router.replace('/(tabs)/home');
     } catch (e: any) {
       if (e.code !== 'ERR_CANCELED') {
-        Alert.alert('Apple-inloggning misslyckades', 'Försök igen');
+        Alert.alert('Apple login failed', 'Please try again');
       }
     } finally {
       setIsLoading(false);
@@ -70,37 +70,46 @@ export default function Login() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>SystemLife</Text>
+        {/* Byt ut textloggan mot bildlogga */}
+        <Image
+          source={require('../../assets/system-logo.png')}
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
         <Text style={styles.subtitle}>Sign in to continue</Text>
 
-        <TouchableOpacity
-          style={styles.whiteButton}
-          onPress={() => promptAsync()}
-          disabled={!request || isLoading}
-          activeOpacity={0.8}
-        >
-          {isLoading ? (
-            <ActivityIndicator color="#222" />
-          ) : (
-            <View style={styles.buttonContent}>
-              <Image
-                source={require('../../assets/google-logo.png')}
-                style={styles.googleLogo}
-                resizeMode="contain"
-              />
-              <Text style={styles.buttonText}>Sign in with Google</Text>
-            </View>
-          )}
-        </TouchableOpacity>
+        <View style={styles.buttonWrapper}>
+          <TouchableOpacity
+            style={styles.whiteButton}
+            onPress={() => promptAsync()}
+            disabled={!request || isLoading}
+            activeOpacity={0.85}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#222" />
+            ) : (
+              <View style={styles.buttonContent}>
+                <Image
+                  source={require('../../assets/google-logo.png')}
+                  style={styles.googleLogo}
+                  resizeMode="contain"
+                />
+                <Text style={styles.buttonText}>Sign in with Google</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
 
         {isAppleAvailable && (
-          <AppleAuthentication.AppleAuthenticationButton
-            buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
-            cornerRadius={8}
-            style={styles.appleButton}
-            onPress={handleAppleLogin}
-          />
+          <View style={styles.buttonWrapper}>
+            <AppleAuthentication.AppleAuthenticationButton
+              buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+              buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
+              cornerRadius={12}
+              style={styles.appleButton}
+              onPress={handleAppleLogin}
+            />
+          </View>
         )}
       </View>
     </SafeAreaView>
@@ -117,40 +126,39 @@ function getStyles(isDark: boolean) {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      paddingHorizontal: 24,
+      paddingHorizontal: 28,
     },
-    title: {
-      fontSize: 36,
-      fontWeight: 'bold',
-      textAlign: 'center',
-      marginBottom: 8,
-      color: isDark ? '#fff' : '#181A20',
-      letterSpacing: 1,
-      fontFamily: Platform.select({ ios: 'System', android: 'sans-serif' }),
+    logoImage: {
+      width: 200,
+      height: 200,
     },
     subtitle: {
-      fontSize: 16,
-      color: isDark ? '#aaa' : '#666',
+      fontSize: 15,
+      color: isDark ? '#b0b0b0' : '#666',
       textAlign: 'center',
-      marginBottom: 40,
+      marginBottom: 48,
       fontFamily: Platform.select({ ios: 'System', android: 'sans-serif' }),
+      fontWeight: '400',
+    },
+    buttonWrapper: {
+      width: '100%',
+      marginBottom: 14,
     },
     whiteButton: {
       backgroundColor: '#fff',
-      paddingVertical: 14,
-      borderRadius: 10,
+      height: 48,
+      borderRadius: 12,
       alignItems: 'center',
-      width: '100%',
-      marginBottom: 16,
-      flexDirection: 'row',
       justifyContent: 'center',
+      width: '100%',
+      flexDirection: 'row',
       shadowColor: isDark ? '#000' : '#ccc',
       shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.15,
-      shadowRadius: 4,
-      elevation: 2,
+      shadowOpacity: 0.18,
+      shadowRadius: 6,
+      elevation: 3,
       borderWidth: 1,
-      borderColor: '#eee',
+      borderColor: '#e0e0e0',
     },
     buttonContent: {
       flexDirection: 'row',
@@ -158,21 +166,21 @@ function getStyles(isDark: boolean) {
       justifyContent: 'center',
     },
     googleLogo: {
-      width: 22,
-      height: 22,
-      marginRight: 10,
+      width: 24,
+      height: 24,
+      marginRight: 14,
     },
     buttonText: {
-      fontSize: 16,
+      fontSize: 17,
       fontWeight: '600',
       color: '#222',
-      letterSpacing: 0.5,
+      letterSpacing: 0.2,
       fontFamily: Platform.select({ ios: 'System', android: 'sans-serif' }),
     },
     appleButton: {
       width: '100%',
-      height: 44,
-      marginTop: 8,
+      height: 48,
+      borderRadius: 12,
     },
   });
 }
