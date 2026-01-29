@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, useColorScheme } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, useColorScheme, Image, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { GOOGLE_OAUTH_CONFIG } from '@/config/oauth';
 import { saveAuthToken } from '@/config/authContext';
-import * as AppleAuthentication from 'expo-apple-authentication';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -17,31 +17,19 @@ export default function Login() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
 
-  React.useEffect(() => {
-    let mounted = true;
-    AppleAuthentication.isAvailableAsync()
-      .then((available) => {
-        if (mounted) setIsAppleAvailable(available);
-      })
-      .catch(() => {
-        if (mounted) setIsAppleAvailable(false);
-      });
-    return () => {
-      mounted = false;
-    };
+  useEffect(() => {
+    AppleAuthentication.isAvailableAsync().then(setIsAppleAvailable);
   }, []);
 
   const [request, response, promptAsync] = Google.useAuthRequest({
-    clientId: GOOGLE_OAUTH_CONFIG.clientId, // Web client ID
-    // Ta bort iosClientId och androidClientId om du bara kör i Expo Go!
+    clientId: GOOGLE_OAUTH_CONFIG.clientId,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleOAuthSuccess = async (accessToken: string | undefined) => {
       if (!accessToken) return;
       setIsLoading(true);
       try {
-        // Hämta användarinfo om du vill, eller skicka token till backend
         await saveAuthToken(accessToken);
         router.replace('/(tabs)/home');
       } catch (error) {
@@ -57,52 +45,61 @@ export default function Login() {
     }
   }, [response, router]);
 
+  const handleAppleLogin = async () => {
+    try {
+      setIsLoading(true);
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+      await saveAuthToken(credential.identityToken || '');
+      router.replace('/(tabs)/home');
+    } catch (e: any) {
+      if (e.code !== 'ERR_CANCELED') {
+        Alert.alert('Apple-inloggning misslyckades', 'Försök igen');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const styles = getStyles(isDark);
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.title}>SystemLife</Text>
-        <Text style={styles.subtitle}>Logga in med Google för att fortsätta</Text>
+        <Text style={styles.subtitle}>Sign in to continue</Text>
+
         <TouchableOpacity
-          style={styles.oauthButton}
+          style={styles.whiteButton}
           onPress={() => promptAsync()}
           disabled={!request || isLoading}
+          activeOpacity={0.8}
         >
           {isLoading ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color="#222" />
           ) : (
-            <Text style={styles.oauthText}>Logga in med Google</Text>
+            <View style={styles.buttonContent}>
+              <Image
+                source={require('../../assets/google-logo.png')}
+                style={styles.googleLogo}
+                resizeMode="contain"
+              />
+              <Text style={styles.buttonText}>Sign in with Google</Text>
+            </View>
           )}
         </TouchableOpacity>
+
         {isAppleAvailable && (
           <AppleAuthentication.AppleAuthenticationButton
             buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-            buttonStyle={isDark
-              ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE
-              : AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
             cornerRadius={8}
-            style={{ width: '100%', height: 44, marginTop: 16 }}
-            onPress={async () => {
-              try {
-                setIsLoading(true);
-                const credential = await AppleAuthentication.signInAsync({
-                  requestedScopes: [
-                    AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-                    AppleAuthentication.AppleAuthenticationScope.EMAIL,
-                  ],
-                });
-                // Hantera credential, t.ex. spara token och navigera vidare
-                await saveAuthToken(credential.identityToken || '');
-                router.replace('/(tabs)/home');
-              } catch (e: any) {
-                if (e.code !== 'ERR_CANCELED') {
-                  Alert.alert('Apple-inloggning misslyckades', 'Försök igen');
-                }
-              } finally {
-                setIsLoading(false);
-              }
-            }}
+            style={styles.appleButton}
+            onPress={handleAppleLogin}
           />
         )}
       </View>
@@ -119,7 +116,8 @@ function getStyles(isDark: boolean) {
     content: {
       flex: 1,
       justifyContent: 'center',
-      paddingHorizontal: 20,
+      alignItems: 'center',
+      paddingHorizontal: 24,
     },
     title: {
       fontSize: 36,
@@ -128,30 +126,53 @@ function getStyles(isDark: boolean) {
       marginBottom: 8,
       color: isDark ? '#fff' : '#181A20',
       letterSpacing: 1,
+      fontFamily: Platform.select({ ios: 'System', android: 'sans-serif' }),
     },
     subtitle: {
       fontSize: 16,
       color: isDark ? '#aaa' : '#666',
       textAlign: 'center',
       marginBottom: 40,
+      fontFamily: Platform.select({ ios: 'System', android: 'sans-serif' }),
     },
-    oauthButton: {
-      backgroundColor: '#4285F4',
-      paddingVertical: 16,
+    whiteButton: {
+      backgroundColor: '#fff',
+      paddingVertical: 14,
       borderRadius: 10,
       alignItems: 'center',
-      marginTop: 28,
-      shadowColor: isDark ? '#000' : '#4285F4',
+      width: '100%',
+      marginBottom: 16,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      shadowColor: isDark ? '#000' : '#ccc',
       shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.2,
+      shadowOpacity: 0.15,
       shadowRadius: 4,
-      elevation: 3,
+      elevation: 2,
+      borderWidth: 1,
+      borderColor: '#eee',
     },
-    oauthText: {
+    buttonContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    googleLogo: {
+      width: 22,
+      height: 22,
+      marginRight: 10,
+    },
+    buttonText: {
       fontSize: 16,
       fontWeight: '600',
-      color: '#fff',
+      color: '#222',
       letterSpacing: 0.5,
+      fontFamily: Platform.select({ ios: 'System', android: 'sans-serif' }),
+    },
+    appleButton: {
+      width: '100%',
+      height: 44,
+      marginTop: 8,
     },
   });
 }
