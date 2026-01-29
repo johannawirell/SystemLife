@@ -6,6 +6,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import AuthForm from '@/components/AuthForm';
 import { GOOGLE_OAUTH_CONFIG } from '@/config/oauth';
+import { saveAuthToken } from '@/config/authContext';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -14,7 +15,7 @@ interface UserInfo {
   email: string;
 }
 
-export default function LoginScreen() {
+export default function Login() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
@@ -37,13 +38,14 @@ export default function LoginScreen() {
         );
         const userInfo = await userInfoResponse.json();
         
-        console.log('Google login success:', userInfo);
         setUserInfo(userInfo);
+
+        // Spara token
+        await saveAuthToken(accessToken);
 
         router.replace('/(tabs)/home');
       } catch (error) {
         Alert.alert('OAuth inloggning misslyckades', 'Försök igen');
-        console.error('OAuth error:', error);
       } finally {
         setIsLoading(false);
       }
@@ -58,8 +60,9 @@ export default function LoginScreen() {
   const handleLogin = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      console.log('Email login:', email, password);
+      // Här kan du lägga till riktig login mot backend
       await new Promise(resolve => setTimeout(resolve, 1000));
+      await saveAuthToken('email-' + email);
       router.replace('/(tabs)/home');
     } catch (error) {
       Alert.alert('Inloggning misslyckades', 'Försök igen');

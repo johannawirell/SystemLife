@@ -2,11 +2,13 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { clearAuthToken } from '@/config/authContext';
 
 export default function HomeScreen() {
   const router = useRouter();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await clearAuthToken();
     router.replace('/auth/login');
   };
 

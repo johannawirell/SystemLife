@@ -5,8 +5,8 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
+        headerShown: false,
         tabBarActiveTintColor: '#007AFF',
-        headerShown: true,
       }}
     >
       <Tabs.Screen
@@ -16,7 +16,6 @@ export default function TabsLayout() {
           tabBarIcon: ({ color }) => (
             <Ionicons name="home" size={24} color={color} />
           ),
-          headerTitle: 'SystemLife',
         }}
       />
       <Tabs.Screen
@@ -26,7 +25,6 @@ export default function TabsLayout() {
           tabBarIcon: ({ color }) => (
             <Ionicons name="person" size={24} color={color} />
           ),
-          headerTitle: 'Min Profil',
         }}
       />
     </Tabs>
