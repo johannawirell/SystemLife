@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, useColorScheme, Image, SafeAreaView, Alert } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, TouchableOpacity, ActivityIndicator, useColorScheme, Image, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { GOOGLE_OAUTH_CONFIG } from '@/config/oauth';
-import { saveAuthToken } from '@/config/authContext';
 import { saveUserToBackend, getJwtFromBackend } from '@/config/api';
 import { getLoginScreenStyles } from '../../config/appStyles';
-import axios from 'axios';
-import { saveAppleEmail, getAppleEmail } from '@/config/authContext';
+import { saveAppleEmail, getAppleEmail, saveAuthToken } from '@/config/authContext';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -30,7 +28,7 @@ export default function Login() {
   });
 
 
-  const handleOAuthSuccess = async (userInfo?: { email?: string, name?: string }) => {
+  const handleOAuthSuccess = useCallback(async (userInfo?: { email?: string, name?: string }) => {
     if (!userInfo?.email) return;
     setIsLoading(true);
     try {
@@ -43,7 +41,7 @@ export default function Login() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     if (response?.type === 'success') {
@@ -56,11 +54,11 @@ export default function Login() {
           const userInfo = await userInfoRes.json();
           await handleOAuthSuccess({ email: userInfo.email, name: userInfo.name });
         } catch {
-          alert('Kunde inte hämta användarinfo från Google');
+          alert('Could not fetch user info from Google, please try again');
         }
       })();
     }
-  }, [response, router]);
+  }, [response, router, handleOAuthSuccess]);
 
   const handleAppleLogin = async () => {
     try {
