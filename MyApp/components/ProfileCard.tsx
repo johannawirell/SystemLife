@@ -48,7 +48,7 @@ export default function ProfileCard({ user }: ProfileCardProps) {
         </View>
         <View style={styles.statCol}>
           <Text style={styles.statLabel}>IQ</Text>
-          <Text style={styles.statValue}>{user.iq}</Text>
+          <Text style={styles.statValue}>{user.iq === 0 ? 'N/A' : user.iq}</Text>
         </View>
         <View style={styles.statCol}>
           <Text style={styles.statLabel}>PERSONALITY</Text>
@@ -56,7 +56,7 @@ export default function ProfileCard({ user }: ProfileCardProps) {
         </View>
         <View style={styles.statCol}>
           <Text style={styles.statLabel}>CLASS</Text>
-          <Text style={styles.statValue}>{user.class}</Text>
+          <Text style={styles.statValue}>{user.class === 0 ? 'N/A' : user.class}</Text>
         </View>
       </View>
 
