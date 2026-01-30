@@ -6,6 +6,7 @@ import * as Google from 'expo-auth-session/providers/google';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { GOOGLE_OAUTH_CONFIG } from '@/config/oauth';
 import { saveAuthToken } from '@/config/authContext';
+import { saveUserToBackend, getJwtFromBackend } from '@/config/api';
 import { getLoginScreenStyles } from '../../config/appStyles';
 import axios from 'axios';
 
@@ -27,51 +28,34 @@ export default function Login() {
     clientId: GOOGLE_OAUTH_CONFIG.clientId,
   });
 
-  // const BACKEND_URL =  
-  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:4000';
 
-  const saveUserToBackend = async (email: string, name?: string) => {
+  const handleOAuthSuccess = async (userInfo?: { email?: string, name?: string }) => {
+    if (!userInfo?.email) return;
+    setIsLoading(true);
     try {
-      console.log('Sparar användare i backend:', email, name);
-      await axios.put(`${BACKEND_URL}/profile/${encodeURIComponent(email)}`, {
-        email,
-        name,
-      });
-    } catch (err) {
-      console.error('Kunde inte spara användare i backend:', err);
-      Alert.alert('Fel', 'Kunde inte spara din profil i backend.');
+      await saveUserToBackend(userInfo.email, userInfo.name);
+      const jwtToken = await getJwtFromBackend(userInfo.email);
+      await saveAuthToken(jwtToken);
+      router.replace('/(tabs)/home');
+    } catch {
+      alert('Login failed, please try again');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    const handleOAuthSuccess = async (accessToken: string | undefined, userInfo?: { email?: string, name?: string }) => {
-      if (!accessToken) return;
-      setIsLoading(true);
-      try {
-        if (userInfo?.email) {
-          await saveUserToBackend(userInfo.email, userInfo.name);
-        }
-        await saveAuthToken(accessToken);
-        router.replace('/(tabs)/home');
-      } catch (error) {
-        alert('Login failed, please try again');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     if (response?.type === 'success') {
       const { authentication } = response;
-      // Hämta användarinfo från Google
       (async () => {
         try {
           const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
             headers: { Authorization: `Bearer ${authentication?.accessToken}` },
           });
           const userInfo = await userInfoRes.json();
-          await handleOAuthSuccess(authentication?.accessToken, { email: userInfo.email, name: userInfo.name });
+          await handleOAuthSuccess({ email: userInfo.email, name: userInfo.name });
         } catch {
-          await handleOAuthSuccess(authentication?.accessToken);
+          alert('Kunde inte hämta användarinfo från Google');
         }
       })();
     }
@@ -86,12 +70,11 @@ export default function Login() {
           AppleAuthentication.AppleAuthenticationScope.EMAIL,
         ],
       });
-      // Spara användare i backend om e-post finns
       if (credential.email) {
-        await saveUserToBackend(credential.email, credential.fullName?.givenName ?? undefined);
+        await handleOAuthSuccess({ email: credential.email, name: credential.fullName?.givenName ?? undefined });
+      } else {
+        alert('Ingen e-post från Apple, kan inte logga in.');
       }
-      await saveAuthToken(credential.identityToken || '');
-      router.replace('/(tabs)/home');
     } catch (e: any) {
       if (e.code !== 'ERR_CANCELED') {
         alert('Apple login failed, please try again');

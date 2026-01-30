@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import jwt from "jsonwebtoken";
 
 dotenv.config();
 
@@ -47,6 +48,16 @@ app.get('/profile/:email', async (req, res) => {
   if (!user) return res.status(404).json({ error: 'User not found' });
   res.json(user);
 });
+
+// Generate JWT
+  app.post('/login', async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) return res.status(400).json({ error: 'Email required' });
+    
+    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    res.json({ token });
+  });
 
 // Create or update profile with defaults
 app.put('/profile/:email', async (req, res) => {
@@ -107,6 +118,20 @@ app.delete('/profile/:email', async (req, res) => {
   } catch (err) {
     console.error('Fel vid borttagning av användare:', err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/profile/me', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ error: 'No token' });
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findOne({ email: decoded.email });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json(user);
+  } catch {
+    res.status(401).json({ error: 'Invalid token' });
   }
 });
 

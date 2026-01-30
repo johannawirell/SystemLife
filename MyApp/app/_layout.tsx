@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { getAuthToken } from '@/config/authContext';
 
 export default function RootLayout() {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [, setIsLoggedIn] = useState<boolean | null>(null);
   const router = useRouter();
 
   useEffect(() => {
