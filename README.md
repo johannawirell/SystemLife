@@ -15,38 +15,38 @@ Syftet med SystemLife är att skapa balans i livet.
 - [x] Livslevel 1-50
 	- Börjar på 1 innan input
 - [x] Titel
- 	- *Starter* innan input
+ 	- [x] *Starter* innan input
 - [x] Balans 0-100
- 	- 0 innan input
+ 	- [x] 0 innan input
 - [x] Klass: Integer
- 	- *N/A* innan input
-- [x] Informationstext om XP till nästa level
- 	- *N/A* innan input
-- [x] Hälsa: Integer
- 	- 0 innan input
-	- beräknas med matematisk formel
-	- hämta data från ex apple hälsa
-	- manuell input
-- [x] Ekonomi: Integer
- 	- 0 innan input
-	- beräknas med matematisk formel
-	- hämta data från ex bank
-	- manuell input
-- [x] Socialt: Integer
- 	- 0 innan input
-	- beräknas med matematisk formel
-	- hämta data från ex sms
-	- manuell input
-- [x] IQ: Integer
- 	- *N/A* innan input
-	- Fast siffra
-	- Manuell input 
-- [x] Personlighetstyp: string
- 	- *N/A* innan input
-	- Manuell input
-- [x] Coins: int
-	- 0 att börja med
-	- baserad på achievements
+ 	- [x] *N/A* innan input
+- [] Informationstext om XP till nästa level
+ 	- [] *N/A* innan input
+- [] Hälsa: Integer
+ 	- [x] 0 innan input
+	- [] beräknas med matematisk formel
+	- [] hämta data från ex apple hälsa
+	- [] manuell input
+- [] Ekonomi: Integer
+ 	- [x] 0 innan input
+	- [] beräknas med matematisk formel
+	- [] hämta data från ex bank
+	- [] manuell input
+- [] Socialt: Integer
+ 	- [x] 0 innan input
+	- [] beräknas med matematisk formel
+	- [] hämta data från ex sms
+	- [] manuell input
+- [] IQ: Integer
+ 	- [x] *N/A* innan input
+	- [] Siffra från 3e part
+	- [] Manuell input 
+- [] Personlighetstyp: string
+ 	- [x] *N/A* innan input
+	- [] Manuell input
+- [] Coins: int
+	- [x] 0 start att börja med
+	- [] baserad på achievements
 
 ## Utseende
 - []
