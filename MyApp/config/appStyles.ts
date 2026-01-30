@@ -21,26 +21,85 @@ export const FONT = Platform.select({ ios: 'System', android: 'sans-serif' });
 
 export function getProfileCardStyles(isDark: boolean) {
   return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: isDark ? '#000' : '#fff',
-      alignItems: 'center',
-      justifyContent: 'center',
+    card: {
+      backgroundColor: isDark ? '#23243a' : '#fff',
+      borderRadius: 16,
+      padding: 24,
+      marginVertical: 16,
+      width: '100%',
+      maxWidth: 400,
+      shadowColor: isDark ? '#000' : '#ccc',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 8,
+      elevation: 4,
+      alignSelf: 'center',
     },
-    content: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    logoImage: {
-      width: 120,
-      height: 120,
-      marginBottom: 24,
-    },
-    title: {
-      fontSize: 28,
+    statusHeader: {
+      fontSize: 18,
       fontWeight: 'bold',
+      color: isDark ? '#4F8EF7' : '#181A20',
+      marginBottom: 12,
+      letterSpacing: 1,
+      textAlign: 'center',
+      fontFamily: FONT,
+    },
+    row: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    label: {
+      fontSize: 15,
+      color: isDark ? COLORS.textSecondaryDark : COLORS.textSecondaryLight,
+      fontWeight: '600',
+      fontFamily: FONT,
+    },
+    value: {
+      fontSize: 15,
       color: isDark ? COLORS.textDark : COLORS.textLight,
+      fontWeight: '500',
+      fontFamily: FONT,
+      textAlign: 'right',
+      flexShrink: 1,
+    },
+    titleValue: {
+      color: COLORS.accent,
+      fontWeight: 'bold',
+    },
+    levelValue: {
+      color: COLORS.accentRed,
+      fontWeight: 'bold',
+    },
+    divider: {
+      height: 1,
+      backgroundColor: isDark ? COLORS.dividerDark : COLORS.dividerLight,
+      marginVertical: 12,
+      borderRadius: 1,
+    },
+    statsGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+      marginBottom: 8,
+    },
+    statCol: {
+      width: '30%',
+      marginBottom: 10,
+      alignItems: 'center',
+    },
+    statLabel: {
+      fontSize: 13,
+      color: COLORS.accent,
+      fontWeight: '600',
+      marginBottom: 2,
+      fontFamily: FONT,
+    },
+    statValue: {
+      fontSize: 14,
+      color: isDark ? COLORS.textDark : COLORS.textLight,
+      fontWeight: '500',
       fontFamily: FONT,
     },
   });
