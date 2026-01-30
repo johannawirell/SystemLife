@@ -32,3 +32,12 @@ export async function getUserFromBackend(token: string) {
   if (!res.ok) throw new Error('Failed to fetch user');
   return await res.json();
 }
+
+export async function getGoogleUserInfo(accessToken: string) {
+  const url = process.env.EXPO_PUBLIC_GOOGLE_USERINFO_URL;
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!res.ok) throw new Error('Failed to fetch Google user info');
+  return await res.json();
+}

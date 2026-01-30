@@ -5,7 +5,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { GOOGLE_OAUTH_CONFIG } from '@/config/oauth';
-import { saveUserToBackend, getJwtFromBackend } from '@/config/api';
+import { getGoogleUserInfo, saveUserToBackend, getJwtFromBackend } from '@/config/api';
 import { getLoginScreenStyles } from '../../config/appStyles';
 import { saveAppleEmail, getAppleEmail, saveAuthToken } from '@/config/authContext';
 
@@ -48,10 +48,11 @@ export default function Login() {
       const { authentication } = response;
       (async () => {
         try {
-          const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-            headers: { Authorization: `Bearer ${authentication?.accessToken}` },
-          });
-          const userInfo = await userInfoRes.json();
+          if (!authentication?.accessToken) {
+            alert('Google authentication failed, access token missing');
+            return;
+          }
+          const userInfo = await getGoogleUserInfo(authentication.accessToken);
           await handleOAuthSuccess({ email: userInfo.email, name: userInfo.name });
         } catch {
           alert('Could not fetch user info from Google, please try again');
@@ -95,6 +96,28 @@ export default function Login() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      setIsLoading(true);
+      const result = await promptAsync();
+      if (result.type === 'success') {
+        const accessToken = result.authentication?.accessToken;
+        if (!accessToken) {
+          alert('Google authentication failed, access token missing');
+          return;
+        }
+        const userInfo = await getGoogleUserInfo(accessToken);
+        await handleOAuthSuccess({ email: userInfo.email, name: userInfo.name });
+      } else if (result.type !== 'dismiss') {
+        alert('Google login failed, please try again');
+      }
+    } catch {
+      alert('Google login failed, please try again');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
@@ -108,7 +131,7 @@ export default function Login() {
 
         <TouchableOpacity
           style={styles.whiteButton}
-          onPress={() => promptAsync()}
+          onPress={handleGoogleLogin}
           disabled={!request || isLoading}
           activeOpacity={0.85}
         >
