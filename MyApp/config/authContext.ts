@@ -18,3 +18,11 @@ export async function getAuthToken() {
 export async function clearAuthToken() {
   await AsyncStorage.removeItem('authToken');
 }
+
+export async function saveAppleEmail(email: string) {
+  await AsyncStorage.setItem('appleEmail', email);
+}
+
+export async function getAppleEmail() {
+  return await AsyncStorage.getItem('appleEmail');
+}

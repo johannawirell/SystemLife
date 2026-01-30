@@ -37,6 +37,12 @@ export function getProfileCardStyles(isDark: boolean) {
       height: 120,
       marginBottom: 24,
     },
+    title: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: isDark ? COLORS.textDark : COLORS.textLight,
+      fontFamily: FONT,
+    },
   });
 }
 

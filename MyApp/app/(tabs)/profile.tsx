@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Image, useColorScheme, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getProfileCardStyles } from '@/config/appStyles';
+import { getProfileScreenStyles } from '@/config/appStyles';
 import ProfileCard from '../../components/ProfileCard';
 import BalanceBar from '../../components/BalanceBar';
 import { getAuthToken } from '@/config/authContext';
@@ -10,7 +10,7 @@ import { getUserFromBackend } from '@/config/api';
 export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const styles = getProfileCardStyles(isDark);
+  const styles = getProfileScreenStyles(isDark);
 
   const [user, setUser] = useState<any>(null);
 
@@ -42,6 +42,7 @@ export default function ProfileScreen() {
           maxValue={100}
           color="#4F8EF7"
         />
+        {!user && <Text>Ingen användare hittades.</Text>}
       </View>
     </SafeAreaView>
   );

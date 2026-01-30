@@ -9,6 +9,7 @@ import { saveAuthToken } from '@/config/authContext';
 import { saveUserToBackend, getJwtFromBackend } from '@/config/api';
 import { getLoginScreenStyles } from '../../config/appStyles';
 import axios from 'axios';
+import { saveAppleEmail, getAppleEmail } from '@/config/authContext';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -70,10 +71,22 @@ export default function Login() {
           AppleAuthentication.AppleAuthenticationScope.EMAIL,
         ],
       });
-      if (credential.email) {
-        await handleOAuthSuccess({ email: credential.email, name: credential.fullName?.givenName ?? undefined });
+
+      let email = credential.email;
+      let name = credential.fullName?.givenName ?? undefined;
+
+      // If email is not provided (not first login), retrieve it from storage
+      if (!email) {
+        email = await getAppleEmail();
       } else {
-        alert('Ingen e-post från Apple, kan inte logga in.');
+        // Save mail for future logins
+        await saveAppleEmail(email);
+      }
+
+      if (email) {
+        await handleOAuthSuccess({ email, name });
+      } else {
+        alert('Apple login failed, email not available');
       }
     } catch (e: any) {
       if (e.code !== 'ERR_CANCELED') {

@@ -41,13 +41,13 @@ app.get('/', async (req, res) => {
   res.send(users); 
 });
 
-// Hämta profil
-app.get('/profile/:email', async (req, res) => {
-  console.log('Hämtar profil');
-  const user = await User.findOne({ email: req.params.email });
-  if (!user) return res.status(404).json({ error: 'User not found' });
-  res.json(user);
-});
+// // Hämta profil
+// app.get('/profile/:email', async (req, res) => {
+//   console.log('Hämtar profil', req.params.email);
+//   const user = await User.findOne({ email: req.params.email });
+//   if (!user) return res.status(404).json({ error: 'User not found' });
+//   res.json(user);
+// });
 
 // Generate JWT
   app.post('/login', async (req, res) => {
@@ -113,10 +113,10 @@ app.delete('/profile/:email', async (req, res) => {
     if (!result) {
       return res.status(404).json({ error: 'User not found' });
     }
-    console.log('Användare borttagen:', req.params.email);
+    console.log('User removed:', req.params.email);
     res.json({ success: true, message: 'User deleted' });
   } catch (err) {
-    console.error('Fel vid borttagning av användare:', err);
+    console.error('Error deleting user:', err);
     res.status(500).json({ error: err.message });
   }
 });
