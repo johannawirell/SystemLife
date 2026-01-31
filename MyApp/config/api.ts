@@ -27,7 +27,7 @@ export async function getUserFromBackend(token: string) {
   if (!token) {
     return {
       name: 'Test User',
-      title: 'Novice',
+      title: 'Starter',
       level: 1,
       xpToNextLevel: 100,
       health: 50,
@@ -37,7 +37,7 @@ export async function getUserFromBackend(token: string) {
       personality: 15,
       class: 0,
       coins: 500,
-      email: 'johanna',
+      email: 'testuser@systemlife.com',
       balance: 75,
     };
   } else {

@@ -161,6 +161,12 @@ export function getProfileScreenStyles(isDark: boolean) {
       height: 120,
       marginBottom: 16,
     },
+    noUser: {
+      marginTop: 20,
+      color: isDark ? COLORS.lightBg: COLORS.darkBg,
+      fontSize: 16,
+      fontStyle: 'italic',
+      fontFamily: FONT,}
   });
 }
 

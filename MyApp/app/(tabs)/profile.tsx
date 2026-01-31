@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { getProfileScreenStyles } from '@/config/appStyles';
 import ProfileCard from '../../components/ProfileCard';
 import BalanceBar from '../../components/BalanceBar';
-import { getAuthToken } from '@/config/authContext';
+// import { getAuthToken } from '@/config/authContext';
 import { getUserFromBackend } from '@/config/api';
 
 export default function ProfileScreen() {
@@ -16,10 +16,10 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     (async () => {
-      const token = await getAuthToken();
-      if (!token) return;
+      // const token = await getAuthToken();
+      // if (!token) return;
       try {
-        const userData = await getUserFromBackend(token);
+        const userData = await getUserFromBackend(null); // Replace 'null' with actual token when available
         setUser(userData);
       } catch {
         setUser(null);
@@ -42,7 +42,7 @@ export default function ProfileScreen() {
           maxValue={100}
           color="#4F8EF7"
         />
-        {!user && <Text>Ingen användare hittades.</Text>}
+        {!user && <Text style={styles.noUser}>No user.</Text>}
       </View>
     </SafeAreaView>
   );
