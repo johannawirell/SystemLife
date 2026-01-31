@@ -23,7 +23,6 @@ In the output, you'll find options to open the app in a
 - [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
 ## Get a fresh project
 
@@ -35,16 +34,52 @@ npm run reset-project
 
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-## Learn more
+# iOS: Bygga och köra appen i Xcode
+## 1.Förbered native-projektet
+Om du har ändrat native-konfiguration (t.ex. `app.json`, lagt till native-moduler):
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+npx expo prebuild
+cd ios
+pod install
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## 2. Öppna projektet i Xcode
+Öppna ios/SystemLife.xcworkspace i Xcode (inte .xcodeproj).
 
-## Join the community
+## 3. Välj din iPhone som target
+Anslut din iPhone med USB och välj den högst upp i Xcode.
 
-Join our community of developers creating universal apps.
+## 4. Bygg och kör appen
+Tryck på Run (play-knappen) i Xcode.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 5. Starta Metro-bundlern
+I projektroten, kör:
+
+```bash
+npx expo start --dev-client
+```
+
+Låt terminalen vara öppen medan du kör appen.
+
+
+## Felsökning: Rensa cache i Xcode
+Felsökning: Rensa cache i Xcode
+1. Stäng Xcode.
+2. Rensa Derived Data (Xcode-cache)
+Kör i terminalen:
+```bash
+rm -rf ~/Library/Developer/Xcode/DerivedData
+```
+3. Öppna projektet igen och bygg om.
+
+### Clean Build Folder
+I Xcode:
+Gå till Product > Clean Build Folder
+(eller tryck Shift + Cmd + K).
+
+
+## Vanliga tips
+- Alltid öppna .xcworkspace (inte .xcodeproj) när du använder CocoaPods.
+- Om du ändrar native-konfiguration, kör alltid npx expo prebuild och pod install innan du bygger i Xcode.
+- Om appen inte hittar din backend, kontrollera att du använder din dators IP-adress i .env och att både iPhone och Mac är på samma nätverk.

@@ -16,14 +16,16 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "org.name.SystemLife",
-      "usesAppleSignIn": true
+      "usesAppleSignIn": true,
+      "icon": "./assets/adaptive-icon.png"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.johannawirell.systemlife"
+      "package": "com.johannawirell.systemlife",
+      "icon": "./assets/adaptive-icon.png"
     }
   }
 }

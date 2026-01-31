@@ -23,14 +23,34 @@ export async function getUserProfile(email: string) {
 }
 
 export async function getUserFromBackend(token: string) {
+  // Testsyfte, när det inte fungerar att logga in med Apple
+  if (!token) {
+    return {
+      name: 'Test User',
+      title: 'Novice',
+      level: 1,
+      xpToNextLevel: 100,
+      health: 50,
+      economy: 30,
+      social: 20,
+      iq: 0,
+      personality: 15,
+      class: 0,
+      coins: 500,
+      email: 'johanna',
+      balance: 75,
+    };
+  } else {
   const res = await fetch(`${BACKEND_URL}/profile/me`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  });
-  if (!res.ok) throw new Error('Failed to fetch user');
-  return await res.json();
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!res.ok) throw new Error('Failed to fetch user');
+    return await res.json();
+  }
+  
 }
 
 export async function getGoogleUserInfo(accessToken: string) {
