@@ -144,7 +144,7 @@ export default function Login() {
                 style={styles.googleLogo}
                 resizeMode="contain"
               />
-              <Text style={styles.buttonText}>Sign in with Google</Text>
+              <Text style={styles.buttonText}>Google (Unavailable)</Text>
             </View>
           )}
         </TouchableOpacity>
