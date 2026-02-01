@@ -1,7 +1,6 @@
-import React from 'react';
 import { View, Text, TouchableOpacity, useColorScheme, Image, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { clearAuthToken } from '@/config/authContext';
+import { clearAuthToken } from '../../config/authContext';
 import { getHomeScreenStyles } from '../../config/appStyles';
 
 export default function HomeScreen() {

@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, useColorScheme, Image, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import * as AppleAuthentication from 'expo-apple-authentication';
-import { GOOGLE_OAUTH_CONFIG } from '@/config/oauth';
-import { getGoogleUserInfo, saveUserToBackend, getJwtFromBackend } from '@/config/api';
+import { GOOGLE_OAUTH_CONFIG } from '../../config/oauth';
+import { getGoogleUserInfo, saveUserToBackend, getJwtFromBackend } from '../../config/api';
 import { getLoginScreenStyles } from '../../config/appStyles';
-import { saveAppleEmail, getAppleEmail, saveAuthToken } from '@/config/authContext';
+import { saveAppleEmail, getAppleEmail, saveAuthToken } from '../../config/authContext';
 
 WebBrowser.maybeCompleteAuthSession();
 

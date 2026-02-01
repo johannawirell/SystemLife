@@ -24,7 +24,7 @@ export async function getUserProfile(email: string) {
 
 export async function getUserFromBackend(token: string) {
   // Testsyfte, när det inte fungerar att logga in med Apple
-  if (!token) {
+  if (token.length === 0) {
     return {
       name: 'Test User',
       title: 'Starter',
