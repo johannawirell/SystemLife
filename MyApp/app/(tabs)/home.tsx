@@ -1,4 +1,6 @@
-import { View, Text, TouchableOpacity, useColorScheme, Image, SafeAreaView } from 'react-native';
+import React from 'react';
+import { View, Text, TouchableOpacity, useColorScheme, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { clearAuthToken } from '../../config/authContext';
 import { getHomeScreenStyles } from '../../config/appStyles';

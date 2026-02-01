@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import { View, Text, Button, ActivityIndicator, useColorScheme, Image, SafeAreaView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Button, ActivityIndicator, useColorScheme, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { getProfileScreenStyles } from '../../config/appStyles';
 import ProfileCard from '../../components/ProfileCard';
 import BalanceBar from '../../components/BalanceBar';
