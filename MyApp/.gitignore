@@ -6,9 +6,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# dependencies
-node_modules/
-
 # Expo
 .expo/
 .expo-shared/
@@ -38,16 +35,23 @@ yarn-error.*
 *.pem
 
 # Android
-android/
+android/build/
+android/.gradle/
+android/local.properties
 *.keystore
 
 # iOS
-ios/
-*.xcworkspace
-*.xcuserstate
-Pods/
-DerivedData/
-build/
+ios/build/
+ios/Pods/
+ios/DerivedData/
+ios/.DS_Store
+ios/xcuserdata/
+ios/*.xcworkspace
+ios/*.xcuserstate
+ios/*.hmap
+ios/*.ipa
+ios/.xcode.env.local
+ios/*.jsbundle
 
 # Env
 .env
@@ -55,5 +59,6 @@ build/
 app-example
 
 # generated native folders
-/ios
-/android
+# (ta bort dessa rader så ios/ och android/ INTE ignoreras)
+# /ios
+# /android

@@ -26,6 +26,9 @@
       },
       "package": "com.johannawirell.systemlife",
       "icon": "./assets/adaptive-icon.png"
-    }
+    },
+    "plugins": [
+      "react-native-health"
+    ]
   }
 }
