@@ -1,7 +1,30 @@
-import { Link } from 'expo-router';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { Link, useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+
+import { login } from '@/lib/api';
 
 export default function LoginScreen() {
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleLogin() {
+    setError('');
+    setIsSubmitting(true);
+
+    try {
+      await login(email, password);
+      router.replace('/home');
+    } catch (loginError) {
+      setError(loginError instanceof Error ? loginError.message : 'Kunde inte logga in');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <View style={styles.screen}>
       <View style={styles.card}>
@@ -9,18 +32,32 @@ export default function LoginScreen() {
         <Text style={styles.title}>Logga in</Text>
 
         <View style={styles.form}>
-          <TextInput placeholder="E-post" placeholderTextColor="#8b7e70" style={styles.input} />
           <TextInput
+            autoCapitalize="none"
+            keyboardType="email-address"
+            onChangeText={setEmail}
+            placeholder="E-post"
+            placeholderTextColor="#8b7e70"
+            style={styles.input}
+            value={email}
+          />
+          <TextInput
+            onChangeText={setPassword}
             placeholder="Lösenord"
             placeholderTextColor="#8b7e70"
             secureTextEntry
             style={styles.input}
+            value={password}
           />
         </View>
 
-        <Link href="/home" style={styles.primaryButton}>
-          <Text style={styles.primaryButtonText}>Logga in</Text>
-        </Link>
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+        <Pressable onPress={handleLogin} style={styles.primaryButton}>
+          <Text style={styles.primaryButtonText}>
+            {isSubmitting ? 'Loggar in...' : 'Logga in'}
+          </Text>
+        </Pressable>
 
         <Link href="/profile" style={styles.secondaryButton}>
           <Text style={styles.secondaryButtonText}>Testläge</Text>
@@ -63,11 +100,6 @@ const styles = StyleSheet.create({
     color: '#2d241b',
     fontSize: 34,
     fontWeight: '800',
-  },
-  subtitle: {
-    color: '#6f6256',
-    fontSize: 16,
-    lineHeight: 24,
   },
   form: {
     gap: 12,
@@ -114,5 +146,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
     textAlign: 'center',
+  },
+  errorText: {
+    color: '#b2412f',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

@@ -1,31 +1,74 @@
-import { Link } from 'expo-router';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { Link, useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+
+import { register } from '@/lib/api';
 
 export default function RegisterScreen() {
+  const router = useRouter();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleRegister() {
+    setError('');
+    setIsSubmitting(true);
+
+    try {
+      await register(name, email, password);
+      router.replace('/home');
+    } catch (registerError) {
+      setError(registerError instanceof Error ? registerError.message : 'Kunde inte skapa konto');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <View style={styles.screen}>
       <View style={styles.card}>
         <Text style={styles.eyebrow}>SystemLife</Text>
-        <Text style={styles.title}>Registrera ny anvandare</Text>
-        <Text style={styles.subtitle}>Skapa ett konto for att komma vidare till home och profil.</Text>
+        <Text style={styles.title}>Välkommen till SystemLife</Text>
 
         <View style={styles.form}>
-          <TextInput placeholder="Namn" placeholderTextColor="#8b7e70" style={styles.input} />
-          <TextInput placeholder="E-post" placeholderTextColor="#8b7e70" style={styles.input} />
           <TextInput
-            placeholder="Losenord"
+            onChangeText={setName}
+            placeholder="Namn"
+            placeholderTextColor="#8b7e70"
+            style={styles.input}
+            value={name}
+          />
+          <TextInput
+            autoCapitalize="none"
+            keyboardType="email-address"
+            onChangeText={setEmail}
+            placeholder="E-post"
+            placeholderTextColor="#8b7e70"
+            style={styles.input}
+            value={email}
+          />
+          <TextInput
+            onChangeText={setPassword}
+            placeholder="Lösenord"
             placeholderTextColor="#8b7e70"
             secureTextEntry
             style={styles.input}
+            value={password}
           />
         </View>
 
-        <Link href="/home" style={styles.primaryButton}>
-          <Text style={styles.primaryButtonText}>Skapa konto</Text>
-        </Link>
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+        <Pressable onPress={handleRegister} style={styles.primaryButton}>
+          <Text style={styles.primaryButtonText}>
+            {isSubmitting ? 'Skapar konto...' : 'Skapa konto'}
+          </Text>
+        </Pressable>
 
         <Link href="/" style={styles.secondaryButton}>
-          <Text style={styles.secondaryButtonText}>Tillbaka till inloggning</Text>
+          <Text style={styles.secondaryButtonText}>Har du redan ett konto?</Text>
         </Link>
       </View>
     </View>
@@ -62,11 +105,6 @@ const styles = StyleSheet.create({
     fontSize: 34,
     fontWeight: '800',
   },
-  subtitle: {
-    color: '#6f6256',
-    fontSize: 16,
-    lineHeight: 24,
-  },
   form: {
     gap: 12,
   },
@@ -102,5 +140,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     textAlign: 'center',
+  },
+  errorText: {
+    color: '#b2412f',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
