@@ -9,6 +9,7 @@ export type User = {
   passwordHash: string;
   name: string;
   authProvider?: 'email' | 'apple' | 'google' | 'linkedin';
+  googleProviderUserId?: string;
   preferences: {
     areas: string[];
     ambition: string;
@@ -99,6 +100,7 @@ const users = new Map<string, User>([
       passwordHash: seedPasswordHash,
       name: 'Johanna Wirell',
       authProvider: 'email',
+      googleProviderUserId: undefined,
       preferences: {
         areas: ['halsa', 'studier', 'karriar'],
         ambition: 'medium',

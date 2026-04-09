@@ -96,10 +96,12 @@ authRouter.post('/oauth', async (req, res, next) => {
     provider,
     idToken,
     platform,
+    intent,
   } = req.body as {
     provider?: string;
     idToken?: string;
     platform?: 'android' | 'ios' | 'web';
+    intent?: 'login' | 'register';
   };
 
   const normalizedProvider =
@@ -120,17 +122,49 @@ authRouter.post('/oauth', async (req, res, next) => {
     return;
   }
 
+  if (intent !== 'login' && intent !== 'register') {
+    next(new HttpError(400, 'intent must be login or register'));
+    return;
+  }
+
   try {
     const identity = await verifyGoogleIdToken(idToken);
-    let user = Array.from(store.users.values()).find((item) => item.email === identity.email);
+    let user = Array.from(store.users.values()).find(
+      (item) => item.googleProviderUserId === identity.providerUserId
+    );
 
-    if (!user) {
+    const emailUser = Array.from(store.users.values()).find((item) => item.email === identity.email);
+
+    if (intent === 'login') {
+      if (!user) {
+        next(new HttpError(404, 'Det finns inget SystemLife-konto kopplat till detta Google-konto'));
+        return;
+      }
+    }
+
+    if (intent === 'register' && user) {
+      next(new HttpError(409, 'Google-kontot är redan kopplat till ett SystemLife-konto'));
+      return;
+    }
+
+    if (intent === 'register' && !user && emailUser && !emailUser.googleProviderUserId) {
+      next(
+        new HttpError(
+          409,
+          'E-postadressen finns redan i SystemLife men är inte kopplad till Google ännu'
+        )
+      );
+      return;
+    }
+
+    if (!user && intent === 'register') {
       user = {
         id: uuid(),
         email: identity.email,
         passwordHash: '',
         name: identity.name,
         authProvider: normalizedProvider,
+        googleProviderUserId: identity.providerUserId,
         preferences: {
           areas: ['halsa'],
           ambition: 'medium',
@@ -146,12 +180,18 @@ authRouter.post('/oauth', async (req, res, next) => {
       });
     }
 
+    if (!user) {
+      next(new HttpError(500, 'Google OAuth kunde inte slutföras'));
+      return;
+    }
+
     const token = createAccessToken(user);
 
     store.createEvent('auth.oauth', user.id, {
       provider: normalizedProvider,
       platform: platform ?? 'web',
       providerUserId: identity.providerUserId,
+      intent,
     });
 
     res.json({

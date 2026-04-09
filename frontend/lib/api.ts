@@ -51,6 +51,7 @@ export async function oauthLogin(
   payload?: {
     idToken?: string;
     platform?: 'android' | 'ios' | 'web';
+    intent?: 'login' | 'register';
   }
 ) {
   const result = await request<AuthResponse>('/auth/oauth', {

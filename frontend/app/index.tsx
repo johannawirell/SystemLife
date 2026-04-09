@@ -57,6 +57,7 @@ export default function LoginScreen() {
         await oauthLogin(Platform.OS === 'android' ? 'android' : 'google', {
           idToken,
           platform: Platform.OS === 'android' ? 'android' : Platform.OS === 'ios' ? 'ios' : 'web',
+          intent: 'login',
         });
         router.replace('/home');
       } catch (oauthError) {
@@ -137,7 +138,6 @@ export default function LoginScreen() {
         </Pressable>
 
         <View style={styles.oauthSection}>
-          <Text style={styles.oauthTitle}>Google OAuth</Text>
 
           {Platform.OS !== 'android' ? (
             <Pressable onPress={() => handleGoogleLogin('google')} style={styles.oauthButton}>
@@ -150,13 +150,10 @@ export default function LoginScreen() {
           <Pressable onPress={() => handleGoogleLogin('android')} style={styles.oauthButton}>
             <Text style={styles.oauthButtonText}>
               {oauthSubmitting === 'android'
-                ? 'Ansluter Android...' : 'Fortsätt med Android (Google)'}
+                ? 'Ansluter Android...' : 'Fortsätt med Android'}
             </Text>
           </Pressable>
 
-          <Text style={styles.oauthHint}>
-            Apple ID och LinkedIn aktiveras när deras nycklar och verifiering finns i backend.
-          </Text>
         </View>
 
         <Link href="/profile" style={styles.secondaryButton}>

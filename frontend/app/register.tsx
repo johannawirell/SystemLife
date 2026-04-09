@@ -1,8 +1,14 @@
 import { Link, useRouter } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+import { ResponseType } from 'expo-auth-session';
+import Constants from 'expo-constants';
 
-import { registerWithOnboarding } from '@/lib/api';
+import { oauthLogin, registerWithOnboarding } from '@/lib/api';
+
+WebBrowser.maybeCompleteAuthSession();
 
 const AREA_OPTIONS = [
   { key: 'halsa', label: 'Hälsa' },
@@ -27,6 +33,63 @@ export default function RegisterScreen() {
   const [ambition, setAmbition] = useState('medium');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [oauthSubmitting, setOauthSubmitting] = useState(false);
+  const projectNameForProxy =
+    Constants.expoConfig?.originalFullName ??
+    (Constants.expoConfig?.owner && Constants.expoConfig?.slug
+      ? `@${Constants.expoConfig.owner}/${Constants.expoConfig.slug}`
+      : undefined);
+
+  const [, googleResponse, promptGoogleAuth] = Google.useAuthRequest({
+    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
+    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    responseType: ResponseType.IdToken,
+    scopes: ['openid', 'profile', 'email'],
+    selectAccount: true,
+  });
+
+  useEffect(() => {
+    async function finishGoogleRegister() {
+      const idToken =
+        googleResponse &&
+        googleResponse.type === 'success' &&
+        'params' in googleResponse
+          ? googleResponse.params.id_token
+          : undefined;
+
+      if (googleResponse?.type !== 'success' || !idToken) {
+        if (googleResponse?.type === 'error') {
+          setError('Google-registreringen misslyckades');
+          setOauthSubmitting(false);
+        }
+        if (googleResponse?.type === 'success' && !idToken) {
+          setError('Google svarade utan id_token');
+          setOauthSubmitting(false);
+        }
+        return;
+      }
+
+      try {
+        await oauthLogin(Platform.OS === 'android' ? 'android' : 'google', {
+          idToken,
+          platform: Platform.OS === 'android' ? 'android' : Platform.OS === 'ios' ? 'ios' : 'web',
+          intent: 'register',
+        });
+        router.replace('/home');
+      } catch (oauthError) {
+        setError(
+          oauthError instanceof Error
+            ? oauthError.message
+            : 'Kunde inte registrera med Google'
+        );
+      } finally {
+        setOauthSubmitting(false);
+      }
+    }
+
+    void finishGoogleRegister();
+  }, [googleResponse, router]);
 
   function toggleArea(area: string) {
     setAreas((current) =>
@@ -70,6 +133,24 @@ export default function RegisterScreen() {
     }
   }
 
+  async function handleGoogleRegister() {
+    setError('');
+
+    if (!projectNameForProxy) {
+      setError('Expo proxy saknar projektnamn. Kontrollera owner och slug i app.json.');
+      return;
+    }
+
+    setOauthSubmitting(true);
+    const result = await promptGoogleAuth({
+      projectNameForProxy,
+    } as never);
+
+    if (result.type !== 'success' && result.type !== 'opened') {
+      setOauthSubmitting(false);
+    }
+  }
+
   return (
     <View style={styles.screen}>
       <View style={styles.card}>
@@ -104,6 +185,15 @@ export default function RegisterScreen() {
         </View>
 
         <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Registrera med Google</Text>
+          <Pressable onPress={handleGoogleRegister} style={styles.googleButton}>
+            <Text style={styles.googleButtonText}>
+              {oauthSubmitting ? 'Kontrollerar Google-konto...' : 'Registrera med Google'}
+            </Text>
+          </Pressable>
+        </View>
+
+        <View style={styles.section}>
           <Text style={styles.sectionTitle}>Välj livsområden</Text>
           <View style={styles.chipRow}>
             {AREA_OPTIONS.map((area) => (
@@ -130,9 +220,7 @@ export default function RegisterScreen() {
               style={[styles.input, styles.goalInput]}
               value={goalInput}
             />
-            <Pressable onPress={addGoal} style={styles.goalButton}>
-              <Text style={styles.goalButtonText}>Lägg till</Text>
-            </Pressable>
+            
           </View>
           <View style={styles.goalList}>
             {goals.map((goal) => (
@@ -216,6 +304,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
   },
+  helperText: {
+    color: '#6f6256',
+    fontSize: 13,
+    lineHeight: 20,
+  },
   input: {
     backgroundColor: '#f1e7d8',
     borderRadius: 16,
@@ -223,6 +316,18 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     color: '#2d241b',
     fontSize: 16,
+  },
+  googleButton: {
+    backgroundColor: '#eadfce',
+    borderRadius: 16,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  googleButtonText: {
+    color: '#2d241b',
+    fontSize: 15,
+    fontWeight: '700',
+    textAlign: 'center',
   },
   chipRow: {
     flexDirection: 'row',
