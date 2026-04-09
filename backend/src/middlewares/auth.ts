@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 
 import { HttpError } from '../utils/http-error';
+import { verifyAccessToken } from '../utils/auth';
 import { store, User } from '../utils/store';
 
 export type AuthenticatedRequest = Request & {
@@ -17,12 +18,8 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction) {
   }
 
   const token = header.replace('Bearer ', '').trim();
-  const userId = store.tokens.get(token);
-
-  if (!userId) {
-    next(new HttpError(401, 'Invalid token'));
-    return;
-  }
+  const payload = verifyAccessToken(token);
+  const userId = payload.sub;
 
   const user = store.users.get(userId);
 

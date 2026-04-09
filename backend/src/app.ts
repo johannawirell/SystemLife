@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import { checkDatabaseConnection } from './config/db';
 import { errorHandler, notFoundHandler } from './middlewares/error-handler';
 import { apiRouter } from './modules';
+import { createAccessToken } from './utils/auth';
 import { store } from './utils/store';
 
 export const app = express();
@@ -26,7 +27,7 @@ app.get('/health', async (_req, res) => {
   res.json({
     status: 'ok',
     database,
-    demoToken: store.seedToken,
+    demoToken: createAccessToken(Array.from(store.users.values())[0]),
   });
 });
 

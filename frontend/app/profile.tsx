@@ -52,6 +52,7 @@ export default function ProfileScreen() {
         <Text style={styles.row}>
           Livsområden: {user?.preferences.areas.length ? user.preferences.areas.join(', ') : '-'}
         </Text>
+        <Text style={styles.row}>Mål: {user?.goals.length ? user.goals.join(', ') : '-'}</Text>
         <Text style={styles.row}>Ambitionsnivå: {user?.preferences.ambition ?? '-'}</Text>
         <Text style={styles.row}>Status: Aktiv</Text>
       </View>

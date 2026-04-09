@@ -2,22 +2,66 @@ import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { register } from '@/lib/api';
+import { registerWithOnboarding } from '@/lib/api';
+
+const AREA_OPTIONS = [
+  { key: 'halsa', label: 'Hälsa' },
+  { key: 'studier', label: 'Studier' },
+  { key: 'karriar', label: 'Karriär' },
+] as const;
+
+const AMBITION_OPTIONS = [
+  { key: 'low', label: 'Lugn start' },
+  { key: 'medium', label: 'Balanserad' },
+  { key: 'high', label: 'Hög ambition' },
+] as const;
 
 export default function RegisterScreen() {
   const router = useRouter();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [goalInput, setGoalInput] = useState('');
+  const [goals, setGoals] = useState<string[]>([]);
+  const [areas, setAreas] = useState<string[]>(['halsa']);
+  const [ambition, setAmbition] = useState('medium');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  function toggleArea(area: string) {
+    setAreas((current) =>
+      current.includes(area) ? current.filter((item) => item !== area) : [...current, area]
+    );
+  }
+
+  function addGoal() {
+    const trimmedGoal = goalInput.trim();
+
+    if (!trimmedGoal) {
+      return;
+    }
+
+    setGoals((current) => [...current, trimmedGoal]);
+    setGoalInput('');
+  }
+
   async function handleRegister() {
     setError('');
+
+    if (areas.length === 0) {
+      setError('Välj minst ett livsområde.');
+      return;
+    }
+
+    if (goals.length === 0) {
+      setError('Lägg till minst ett mål.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      await register(name, email, password);
+      await registerWithOnboarding(name, email, password, areas, ambition, goals);
       router.replace('/home');
     } catch (registerError) {
       setError(registerError instanceof Error ? registerError.message : 'Kunde inte skapa konto');
@@ -30,7 +74,7 @@ export default function RegisterScreen() {
     <View style={styles.screen}>
       <View style={styles.card}>
         <Text style={styles.eyebrow}>SystemLife</Text>
-        <Text style={styles.title}>Välkommen till SystemLife</Text>
+        <Text style={styles.title}>Skapa konto</Text>
 
         <View style={styles.form}>
           <TextInput
@@ -57,6 +101,62 @@ export default function RegisterScreen() {
             style={styles.input}
             value={password}
           />
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Välj livsområden</Text>
+          <View style={styles.chipRow}>
+            {AREA_OPTIONS.map((area) => (
+              <Pressable
+                key={area.key}
+                onPress={() => toggleArea(area.key)}
+                style={[styles.chip, areas.includes(area.key) && styles.chipActive]}>
+                <Text style={[styles.chipText, areas.includes(area.key) && styles.chipTextActive]}>
+                  {area.label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Sätt mål</Text>
+          <View style={styles.goalComposer}>
+            <TextInput
+              onChangeText={setGoalInput}
+              onSubmitEditing={addGoal}
+              placeholder="Exempel: Träna 3 gånger i veckan"
+              placeholderTextColor="#8b7e70"
+              style={[styles.input, styles.goalInput]}
+              value={goalInput}
+            />
+            <Pressable onPress={addGoal} style={styles.goalButton}>
+              <Text style={styles.goalButtonText}>Lägg till</Text>
+            </Pressable>
+          </View>
+          <View style={styles.goalList}>
+            {goals.map((goal) => (
+              <Text key={goal} style={styles.goalItem}>
+                • {goal}
+              </Text>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Välj ambitionsnivå</Text>
+          <View style={styles.chipRow}>
+            {AMBITION_OPTIONS.map((option) => (
+              <Pressable
+                key={option.key}
+                onPress={() => setAmbition(option.key)}
+                style={[styles.chip, ambition === option.key && styles.chipActive]}>
+                <Text style={[styles.chipText, ambition === option.key && styles.chipTextActive]}>
+                  {option.label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
         </View>
 
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
@@ -108,6 +208,14 @@ const styles = StyleSheet.create({
   form: {
     gap: 12,
   },
+  section: {
+    gap: 10,
+  },
+  sectionTitle: {
+    color: '#2d241b',
+    fontSize: 18,
+    fontWeight: '700',
+  },
   input: {
     backgroundColor: '#f1e7d8',
     borderRadius: 16,
@@ -115,6 +223,55 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     color: '#2d241b',
     fontSize: 16,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  chip: {
+    borderColor: '#cab79e',
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  chipActive: {
+    backgroundColor: '#2d241b',
+    borderColor: '#2d241b',
+  },
+  chipText: {
+    color: '#4f4338',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  chipTextActive: {
+    color: '#fffaf2',
+  },
+  goalComposer: {
+    gap: 10,
+  },
+  goalInput: {
+    width: '100%',
+  },
+  goalButton: {
+    backgroundColor: '#eadfce',
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  goalButtonText: {
+    color: '#2d241b',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  goalList: {
+    gap: 6,
+  },
+  goalItem: {
+    color: '#4f4338',
+    fontSize: 15,
+    lineHeight: 22,
   },
   primaryButton: {
     backgroundColor: '#2d241b',

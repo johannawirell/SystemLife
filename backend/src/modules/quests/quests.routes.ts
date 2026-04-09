@@ -8,7 +8,7 @@ import { store } from '../../utils/store';
 export const questsRouter = Router();
 
 questsRouter.get('/', (req, res) => {
-  const authReq = req as AuthenticatedRequest;
+  const authReq = req as unknown as AuthenticatedRequest;
   const items = Array.from(store.quests.values()).filter(
     (quest) => quest.userId === authReq.user.id
   );
@@ -16,7 +16,7 @@ questsRouter.get('/', (req, res) => {
 });
 
 questsRouter.post('/', (req, res, next) => {
-  const authReq = req as AuthenticatedRequest;
+  const authReq = req as unknown as AuthenticatedRequest;
   const { title, goalId, recurring = false } = req.body as {
     title?: string;
     goalId?: string;
@@ -44,7 +44,7 @@ questsRouter.post('/', (req, res, next) => {
 });
 
 questsRouter.patch('/:id', (req, res, next) => {
-  const authReq = req as AuthenticatedRequest;
+  const authReq = req as unknown as AuthenticatedRequest;
   const quest = store.quests.get(req.params.id);
 
   if (!quest || quest.userId !== authReq.user.id) {
@@ -62,7 +62,7 @@ questsRouter.patch('/:id', (req, res, next) => {
 });
 
 questsRouter.post('/:id/complete', (req, res, next) => {
-  const authReq = req as AuthenticatedRequest;
+  const authReq = req as unknown as AuthenticatedRequest;
   const quest = store.quests.get(req.params.id);
 
   if (!quest || quest.userId !== authReq.user.id) {

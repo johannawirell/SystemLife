@@ -15,6 +15,7 @@ src/
     events/
     goals/
     integrations/
+    mental-health/
     notifications/
     progression/
     quests/
@@ -49,7 +50,26 @@ Alla endpoints ligger under `/api`.
 - `GET /api/activities`
 - `POST /api/integrations/health/sync`
 - `POST /api/integrations/linkedin/connect`
+- `GET /api/mental-health/overview`
+- `GET /api/mental-health/check-ins`
+- `POST /api/mental-health/check-ins`
+- `GET /api/mental-health/journal`
+- `POST /api/mental-health/journal`
+- `GET /api/mental-health/tools`
+- `GET /api/mental-health/goals`
+- `POST /api/mental-health/goals`
+- `PATCH /api/mental-health/goals/:id`
 - `POST /api/notifications/send`
+
+## Mental Health Service
+
+Mental health-servicen stottar:
+
+- mood and anxiety tracking
+- journaling prompts och journalinlagg
+- mindfulness exercises
+- coping strategies
+- small step goals, till exempel exposure therapy
 
 ## Koer lokalt
 

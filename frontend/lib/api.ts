@@ -53,6 +53,22 @@ export async function register(name: string, email: string, password: string) {
   return result;
 }
 
+export async function registerWithOnboarding(
+  name: string,
+  email: string,
+  password: string,
+  areas: string[],
+  ambition: string,
+  goals: string[]
+) {
+  const result = await request<AuthResponse>('/auth/register', {
+    method: 'POST',
+    body: { name, email, password, areas, ambition, goals },
+  });
+  setSession(result.token, result.user);
+  return result;
+}
+
 export async function fetchCurrentUser() {
   const result = await request<{ user: SessionUser; token: string }>('/auth/me', {
     auth: true,

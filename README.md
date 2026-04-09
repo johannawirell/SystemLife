@@ -90,42 +90,50 @@ React Native
 	- välj livsområden (hälsa, studier, karriär)
 	- sätt mål
 	- välj ambitionsnivå
-## Home
+
+### Home
 - [] XP-bar
-- [] Level
-- [] Dagens quests
+- [] level
+- [] dagens quests
 - [] streak
 - [] senaste achivements
 
-## Goals/Quests
+### Goals/Quests
 - [] skapa mål
 - [] bryta ner i quests
 - [] markera som klar
 - [] progress bars
 
-## Activity logging
-- [] Studietid
-- [] Träning
-- [] Jobbrelaterade aktiviteter
-- [] Socialt
-- [] Ekonomi
-- [] Quick actions
+### Activity logging
+- [] studietid
+- [] träning
+- [] jobbrelaterade aktiviteter
+- [] socialt
+- [] ekonomi
+- [] quick actions
 
-## Progression view
+### Progression view
 - [] XP historik
 - [] level per kategori
 - [] weekly stats
 
-## Achievements
+### Achievements
 - [] badges 
 - [] unlocks
 - [] milestones
 
-## Profil
+### Profil
 - [] avatar
 - [] stats
 - [] nivåer
 - [] inställningar
+
+### Mental health
+- [] mood and anxiety tracking
+- [] journaling prompts
+- [] mindfulness exercises  
+- [] coping strategies
+- [] small step goals (e.g. exposure therapy for social anxiety)
 
 # Backend
 Express.js
@@ -140,6 +148,7 @@ Express.js
     /progression
     /achievements
     /integrations
+    /mental-health
     /notifications
   /middlewares
   /utils
@@ -255,6 +264,31 @@ Endpoints för notifications:
 ```
 POST /notifications/send
 ```
+
+### Mental Health Service
+- [] mood and anxiety tracking
+- [] journaling prompts
+- [] mindfulness exercises
+- [] coping strategies
+- [] small step goals (e.g. exposure therapy for social anxiety)
+
+Endpoints för mental health:
+```
+GET /mental-health/overview
+GET /mental-health/check-ins
+POST /mental-health/check-ins
+GET /mental-health/journal
+POST /mental-health/journal
+GET /mental-health/tools
+GET /mental-health/goals
+POST /mental-health/goals
+PATCH /mental-health/goals/:id
+```
+
+Endpoints för notifications:
+```
+POST /notifications/send
+```
 ### Economy Service
 - [] sparmål
 - [] logga utgifter
@@ -342,5 +376,4 @@ PostgreSQL
 	- [] current_amount
 	- [] deadline
 	- [] created_at
-
 

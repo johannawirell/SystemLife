@@ -6,6 +6,7 @@ export type SessionUser = {
     areas: string[];
     ambition: string;
   };
+  goals: string[];
 };
 
 type SessionState = {

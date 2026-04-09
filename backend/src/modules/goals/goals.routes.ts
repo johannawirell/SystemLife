@@ -14,7 +14,7 @@ goalsRouter.get('/', (req, res) => {
 });
 
 goalsRouter.post('/', (req, res, next) => {
-  const authReq = req as AuthenticatedRequest;
+  const authReq = req as unknown as AuthenticatedRequest;
   const { title, area, deadline } = req.body as {
     title?: string;
     area?: string;
@@ -42,7 +42,7 @@ goalsRouter.post('/', (req, res, next) => {
 });
 
 goalsRouter.patch('/:id', (req, res, next) => {
-  const authReq = req as AuthenticatedRequest;
+  const authReq = req as unknown as AuthenticatedRequest;
   const goal = store.goals.get(req.params.id);
 
   if (!goal || goal.userId !== authReq.user.id) {
@@ -61,7 +61,7 @@ goalsRouter.patch('/:id', (req, res, next) => {
 });
 
 goalsRouter.delete('/:id', (req, res, next) => {
-  const authReq = req as AuthenticatedRequest;
+  const authReq = req as unknown as AuthenticatedRequest;
   const goal = store.goals.get(req.params.id);
 
   if (!goal || goal.userId !== authReq.user.id) {
