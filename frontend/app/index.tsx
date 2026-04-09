@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
+import { ResponseType } from 'expo-auth-session';
+import Constants from 'expo-constants';
 
 import { login, oauthLogin } from '@/lib/api';
 
@@ -15,10 +17,17 @@ export default function LoginScreen() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [oauthSubmitting, setOauthSubmitting] = useState<string | null>(null);
+  const projectNameForProxy =
+    Constants.expoConfig?.originalFullName ??
+    (Constants.expoConfig?.owner && Constants.expoConfig?.slug
+      ? `@${Constants.expoConfig.owner}/${Constants.expoConfig.slug}`
+      : undefined);
 
   const [, googleResponse, promptGoogleAuth] = Google.useAuthRequest({
     androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
     iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    responseType: ResponseType.IdToken,
     scopes: ['openid', 'profile', 'email'],
     selectAccount: true,
   });
@@ -28,13 +37,17 @@ export default function LoginScreen() {
       const idToken =
         googleResponse &&
         googleResponse.type === 'success' &&
-        'authentication' in googleResponse
-          ? googleResponse.authentication?.idToken
+        'params' in googleResponse
+          ? googleResponse.params.id_token
           : undefined;
 
       if (googleResponse?.type !== 'success' || !idToken) {
         if (googleResponse?.type === 'error') {
           setError('Google-inloggningen misslyckades');
+          setOauthSubmitting(null);
+        }
+        if (googleResponse?.type === 'success' && !idToken) {
+          setError('Google svarade utan id_token');
           setOauthSubmitting(null);
         }
         return;
@@ -74,7 +87,15 @@ export default function LoginScreen() {
     setError('');
     setOauthSubmitting(provider);
 
-    const result = await promptGoogleAuth();
+    if (!projectNameForProxy) {
+      setError('Expo proxy saknar projektnamn. Kontrollera owner och slug i app.json.');
+      setOauthSubmitting(null);
+      return;
+    }
+
+    const result = await promptGoogleAuth({
+      projectNameForProxy,
+    } as never);
 
     if (result.type !== 'success' && result.type !== 'opened') {
       setOauthSubmitting(null);
