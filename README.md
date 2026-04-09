@@ -273,6 +273,8 @@ GET  /economy/transactions
 
 ```
 # Databas
+PostgreSQL
+
 ### Users
 - [] id
 - [] email
