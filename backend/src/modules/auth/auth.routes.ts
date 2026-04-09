@@ -3,10 +3,13 @@ import { v4 as uuid } from 'uuid';
 
 import { requireAuth, AuthenticatedRequest } from '../../middlewares/auth';
 import { createAccessToken, hashPassword, verifyPassword } from '../../utils/auth';
+import { verifyGoogleIdToken } from '../../utils/google-auth';
 import { HttpError } from '../../utils/http-error';
 import { store } from '../../utils/store';
 
 export const authRouter = Router();
+const OAUTH_PROVIDERS = ['apple', 'google', 'linkedin'] as const;
+type OAuthProvider = (typeof OAUTH_PROVIDERS)[number];
 
 authRouter.post('/register', (req, res, next) => {
   const { email, password, name, areas, ambition, goals } = req.body as {
@@ -45,6 +48,7 @@ authRouter.post('/register', (req, res, next) => {
     email,
     passwordHash: hashPassword(password),
     name,
+    authProvider: 'email' as const,
     preferences: {
       areas,
       ambition: ambition ?? 'medium',
@@ -87,18 +91,77 @@ authRouter.post('/login', (req, res, next) => {
   });
 });
 
-authRouter.post('/oauth', (req, res) => {
-  const { provider = 'google' } = req.body as { provider?: string };
-  const user = Array.from(store.users.values())[0];
-  const token = createAccessToken(user);
-
-  store.createEvent('auth.oauth', user.id, { provider });
-
-  res.json({
-    token,
+authRouter.post('/oauth', async (req, res, next) => {
+  const {
     provider,
-    user,
-  });
+    idToken,
+    platform,
+  } = req.body as {
+    provider?: string;
+    idToken?: string;
+    platform?: 'android' | 'ios' | 'web';
+  };
+
+  const normalizedProvider =
+    provider === 'android' ? 'google' : (provider as OAuthProvider | undefined);
+
+  if (!normalizedProvider || !OAUTH_PROVIDERS.includes(normalizedProvider)) {
+    next(new HttpError(400, 'provider must be one of apple, google, linkedin or android'));
+    return;
+  }
+
+  if (normalizedProvider !== 'google') {
+    next(new HttpError(400, `${normalizedProvider} OAuth is not configured yet`));
+    return;
+  }
+
+  if (!idToken) {
+    next(new HttpError(400, 'idToken is required for Google OAuth'));
+    return;
+  }
+
+  try {
+    const identity = await verifyGoogleIdToken(idToken);
+    let user = Array.from(store.users.values()).find((item) => item.email === identity.email);
+
+    if (!user) {
+      user = {
+        id: uuid(),
+        email: identity.email,
+        passwordHash: '',
+        name: identity.name,
+        authProvider: normalizedProvider,
+        preferences: {
+          areas: ['halsa'],
+          ambition: 'medium',
+        },
+        goals: ['Kom igång med min vardagsrutin'],
+      };
+
+      store.users.set(user.id, user);
+      store.createEvent('auth.oauth.registered', user.id, {
+        provider: normalizedProvider,
+        platform: platform ?? 'web',
+        providerUserId: identity.providerUserId,
+      });
+    }
+
+    const token = createAccessToken(user);
+
+    store.createEvent('auth.oauth', user.id, {
+      provider: normalizedProvider,
+      platform: platform ?? 'web',
+      providerUserId: identity.providerUserId,
+    });
+
+    res.json({
+      token,
+      provider: normalizedProvider,
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 authRouter.get('/me', requireAuth, (req, res) => {

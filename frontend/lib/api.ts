@@ -13,6 +13,8 @@ type AuthResponse = {
   user: SessionUser;
 };
 
+type OAuthProvider = 'google' | 'android';
+
 async function request<T>(path: string, options: ApiOptions = {}) {
   const { token } = getSession();
   const response = await fetch(`${API_URL}${path}`, {
@@ -39,6 +41,24 @@ export async function login(email: string, password: string) {
   const result = await request<AuthResponse>('/auth/login', {
     method: 'POST',
     body: { email, password },
+  });
+  setSession(result.token, result.user);
+  return result;
+}
+
+export async function oauthLogin(
+  provider: OAuthProvider,
+  payload?: {
+    idToken?: string;
+    platform?: 'android' | 'ios' | 'web';
+  }
+) {
+  const result = await request<AuthResponse>('/auth/oauth', {
+    method: 'POST',
+    body: {
+      provider,
+      ...payload,
+    },
   });
   setSession(result.token, result.user);
   return result;

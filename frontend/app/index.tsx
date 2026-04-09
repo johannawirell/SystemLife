@@ -1,8 +1,12 @@
 import { Link, useRouter } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
 
-import { login } from '@/lib/api';
+import { login, oauthLogin } from '@/lib/api';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -10,6 +14,47 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [oauthSubmitting, setOauthSubmitting] = useState<string | null>(null);
+
+  const [, googleResponse, promptGoogleAuth] = Google.useAuthRequest({
+    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
+    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+    scopes: ['openid', 'profile', 'email'],
+    selectAccount: true,
+  });
+
+  useEffect(() => {
+    async function finishGoogleLogin() {
+      const idToken =
+        googleResponse &&
+        googleResponse.type === 'success' &&
+        'authentication' in googleResponse
+          ? googleResponse.authentication?.idToken
+          : undefined;
+
+      if (googleResponse?.type !== 'success' || !idToken) {
+        if (googleResponse?.type === 'error') {
+          setError('Google-inloggningen misslyckades');
+          setOauthSubmitting(null);
+        }
+        return;
+      }
+
+      try {
+        await oauthLogin(Platform.OS === 'android' ? 'android' : 'google', {
+          idToken,
+          platform: Platform.OS === 'android' ? 'android' : Platform.OS === 'ios' ? 'ios' : 'web',
+        });
+        router.replace('/home');
+      } catch (oauthError) {
+        setError(oauthError instanceof Error ? oauthError.message : 'Kunde inte logga in med Google');
+      } finally {
+        setOauthSubmitting(null);
+      }
+    }
+
+    void finishGoogleLogin();
+  }, [googleResponse, router]);
 
   async function handleLogin() {
     setError('');
@@ -22,6 +67,17 @@ export default function LoginScreen() {
       setError(loginError instanceof Error ? loginError.message : 'Kunde inte logga in');
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function handleGoogleLogin(provider: 'google' | 'android') {
+    setError('');
+    setOauthSubmitting(provider);
+
+    const result = await promptGoogleAuth();
+
+    if (result.type !== 'success' && result.type !== 'opened') {
+      setOauthSubmitting(null);
     }
   }
 
@@ -58,6 +114,29 @@ export default function LoginScreen() {
             {isSubmitting ? 'Loggar in...' : 'Logga in'}
           </Text>
         </Pressable>
+
+        <View style={styles.oauthSection}>
+          <Text style={styles.oauthTitle}>Google OAuth</Text>
+
+          {Platform.OS !== 'android' ? (
+            <Pressable onPress={() => handleGoogleLogin('google')} style={styles.oauthButton}>
+              <Text style={styles.oauthButtonText}>
+                {oauthSubmitting === 'google' ? 'Ansluter Google...' : 'Fortsätt med Google'}
+              </Text>
+            </Pressable>
+          ) : null}
+
+          <Pressable onPress={() => handleGoogleLogin('android')} style={styles.oauthButton}>
+            <Text style={styles.oauthButtonText}>
+              {oauthSubmitting === 'android'
+                ? 'Ansluter Android...' : 'Fortsätt med Android (Google)'}
+            </Text>
+          </Pressable>
+
+          <Text style={styles.oauthHint}>
+            Apple ID och LinkedIn aktiveras när deras nycklar och verifiering finns i backend.
+          </Text>
+        </View>
 
         <Link href="/profile" style={styles.secondaryButton}>
           <Text style={styles.secondaryButtonText}>Testläge</Text>
@@ -122,6 +201,35 @@ const styles = StyleSheet.create({
     color: '#fffaf2',
     fontSize: 16,
     fontWeight: '700',
+    textAlign: 'center',
+  },
+  oauthSection: {
+    gap: 10,
+  },
+  oauthTitle: {
+    color: '#6f6256',
+    fontSize: 14,
+    fontWeight: '700',
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  oauthButton: {
+    backgroundColor: '#eadfce',
+    borderRadius: 16,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  oauthButtonText: {
+    color: '#2d241b',
+    fontSize: 15,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  oauthHint: {
+    color: '#6f6256',
+    fontSize: 13,
+    lineHeight: 20,
     textAlign: 'center',
   },
   secondaryButton: {

@@ -8,6 +8,7 @@ export type User = {
   email: string;
   passwordHash: string;
   name: string;
+  authProvider?: 'email' | 'apple' | 'google' | 'linkedin';
   preferences: {
     areas: string[];
     ambition: string;
@@ -97,6 +98,7 @@ const users = new Map<string, User>([
       email: 'johanna@example.com',
       passwordHash: seedPasswordHash,
       name: 'Johanna Wirell',
+      authProvider: 'email',
       preferences: {
         areas: ['halsa', 'studier', 'karriar'],
         ambition: 'medium',

@@ -61,6 +61,14 @@ Alla endpoints ligger under `/api`.
 - `PATCH /api/mental-health/goals/:id`
 - `POST /api/notifications/send`
 
+## OAuth
+
+`POST /api/auth/oauth` accepterar just nu `google` och `android`.
+
+- `android` mappas till Google-inloggning for Android-klienter
+- Google `id_token` verifieras i backend mot dina konfigurerade Google client IDs
+- Apple och LinkedIn ar inte aktiverade an
+
 ## Mental Health Service
 
 Mental health-servicen stottar:

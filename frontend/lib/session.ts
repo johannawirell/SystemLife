@@ -2,6 +2,7 @@ export type SessionUser = {
   id: string;
   email: string;
   name: string;
+  authProvider?: 'email' | 'apple' | 'google' | 'linkedin';
   preferences: {
     areas: string[];
     ambition: string;

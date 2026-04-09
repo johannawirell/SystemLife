@@ -88,7 +88,6 @@ React Native
 - [] login/signup
 - [] onboarding
 	- välj livsområden (hälsa, studier, karriär)
-	- sätt mål
 	- välj ambitionsnivå
 
 ### Home
@@ -160,6 +159,12 @@ Express.js
 - [] Login
 - [] JWT-tokens
 - [] Oauth
+
+OAuth providers:
+- [] Apple ID
+- [] Google
+- [] Android via Google
+- [] LinkedIn
 
 Endpoints för auth:
 ```
@@ -253,7 +258,7 @@ GET /activities
 Enpoints för integrationer:
 ```
 POST /integrations/health/sync
-POST /integrations/linkedi/connect
+POST /integrations/linkedin/connect
 ```
 
 ### Notification Service
@@ -368,6 +373,7 @@ PostgreSQL
 	- [] amount
 	- [] title
 	- [] created_at
+  
 - Savings_goals
 	- [] id
 	- [] user_id
@@ -376,4 +382,3 @@ PostgreSQL
 	- [] current_amount
 	- [] deadline
 	- [] created_at
-
