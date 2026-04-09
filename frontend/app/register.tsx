@@ -1,17 +1,19 @@
 import { Link } from 'expo-router';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
-export default function LoginScreen() {
+export default function RegisterScreen() {
   return (
     <View style={styles.screen}>
       <View style={styles.card}>
         <Text style={styles.eyebrow}>SystemLife</Text>
-        <Text style={styles.title}>Logga in</Text>
+        <Text style={styles.title}>Registrera ny anvandare</Text>
+        <Text style={styles.subtitle}>Skapa ett konto for att komma vidare till home och profil.</Text>
 
         <View style={styles.form}>
+          <TextInput placeholder="Namn" placeholderTextColor="#8b7e70" style={styles.input} />
           <TextInput placeholder="E-post" placeholderTextColor="#8b7e70" style={styles.input} />
           <TextInput
-            placeholder="Lösenord"
+            placeholder="Losenord"
             placeholderTextColor="#8b7e70"
             secureTextEntry
             style={styles.input}
@@ -19,15 +21,11 @@ export default function LoginScreen() {
         </View>
 
         <Link href="/home" style={styles.primaryButton}>
-          <Text style={styles.primaryButtonText}>Logga in</Text>
+          <Text style={styles.primaryButtonText}>Skapa konto</Text>
         </Link>
 
-        <Link href="/profile" style={styles.secondaryButton}>
-          <Text style={styles.secondaryButtonText}>Testläge</Text>
-        </Link>
-
-        <Link href="/register" style={styles.textLink}>
-          <Text style={styles.textLinkText}>Registrera ny användare</Text>
+        <Link href="/" style={styles.secondaryButton}>
+          <Text style={styles.secondaryButtonText}>Tillbaka till inloggning</Text>
         </Link>
       </View>
     </View>
@@ -102,16 +100,6 @@ const styles = StyleSheet.create({
   secondaryButtonText: {
     color: '#2d241b',
     fontSize: 16,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  textLink: {
-    alignItems: 'center',
-    paddingVertical: 6,
-  },
-  textLinkText: {
-    color: '#9a6b32',
-    fontSize: 15,
     fontWeight: '700',
     textAlign: 'center',
   },
